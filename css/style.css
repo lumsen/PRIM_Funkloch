@@ -64,19 +64,18 @@ h2 {
 #graph {
     width: 100%;
     height: auto;
+    cursor: pointer;
 }
 
 .node circle {
     stroke: #fff;
-    stroke-width: 2px; /* Changed from 1.5px to 2px */
+    stroke-width: 2px;
     transition: transform 0.2s ease-in-out, fill 0.2s ease-in-out;
 }
 
 .node:hover circle {
     transform: scale(1.5);
 }
-
-/* Removed .node.fixed circle rule */
 
 .node text {
     font-size: 9px;
@@ -97,6 +96,17 @@ h2 {
     stroke-opacity: 0.7;
     stroke-width: 2px;
     transition: stroke-opacity 0.2s ease-in-out, stroke-width 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+.link:hover {
+    stroke-opacity: 1;
+}
+
+.link.highlight {
+    stroke: #0056b3; /* Darker blue for link highlight */
+    stroke-opacity: 1;
+    stroke-width: 4px;
 }
 
 .link-1 { stroke: #28a745; }
@@ -114,7 +124,7 @@ h2 {
 }
 
 .link-label.faded {
-    opacity: 0; /* Reverted to 0, removed !important */
+    opacity: 0;
 }
 
 #legend {
@@ -150,14 +160,57 @@ h2 {
 
 .table-container {
     margin-top: 30px;
-    overflow-x: auto; /* Allow horizontal scrolling for the table */
+    overflow-x: auto;
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.table-header h2 {
+    margin-bottom: 0;
+}
+
+.btn {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+    margin-right: 10px; /* Space between buttons */
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
 }
 
 table {
-    min-width: 100%; /* Ensure table takes at least 100% width */
+    min-width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-    margin-top: 20px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     background-color: #fff;
     border-radius: 8px;
@@ -169,6 +222,7 @@ th, td {
     padding: 12px 15px;
     text-align: center;
     font-size: 12px;
+    transition: box-shadow 0.3s ease;
 }
 
 tbody tr:last-child td {
@@ -176,7 +230,7 @@ tbody tr:last-child td {
 }
 
 tbody tr:nth-child(even) {
-    background-color: #f8f9fa; /* Zebra-striping */
+    background-color: #f8f9fa;
 }
 
 thead th {
@@ -184,6 +238,23 @@ thead th {
     font-weight: 700;
     text-align: center;
     border-bottom: 2px solid #adb5bd;
+}
+
+/* Highlighting styles */
+tr.highlight-row th,
+tr.highlight-row td {
+    box-shadow: inset 0 0 0 2px rgba(0, 123, 255, 0.5); /* Inner shadow for highlighting */
+}
+
+th.highlight-col,
+td.highlight-col {
+    box-shadow: inset 0 0 0 2px rgba(0, 123, 255, 0.5); /* Inner shadow for highlighting */
+}
+
+td.diagonal {
+    background-color: #e9ecef;
+    font-weight: bold;
+    color: #6c757d;
 }
 
 .cell-1 { background-color: #28a745; color: white; }
@@ -206,7 +277,6 @@ thead th {
 }
 
 .link.outgoing-highlight {
-    /* Removed stroke: #007bff; */
     stroke-width: 3px;
     stroke-opacity: 1;
 }
@@ -214,5 +284,12 @@ thead th {
 @media (max-width: 992px) {
     .main-content {
         flex-direction: column;
+    }
+    .table-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .table-header .btn {
+        margin-top: 10px;
     }
 }
