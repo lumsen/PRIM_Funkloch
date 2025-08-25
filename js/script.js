@@ -84,48 +84,108 @@ const svg = d3.select("#graph");
 const width = +svg.attr("viewBox").split(' ')[2];
 const height = +svg.attr("viewBox").split(' ')[3];
 
-// Calculate min/max for scaling
-const minX = d3.min(graphData.nodes, d => d.center.x);
-const maxX = d3.max(graphData.nodes, d => d.center.x);
-const minY = d3.min(graphData.nodes, d => d.center.y);
-const maxY = d3.max(graphData.nodes, d => d.center.y);
+const geoDataRaw = `Name,Latitude,Longitude
+Mahlwinkel,52.3831,11.8252
+Sendestation-Tangermünde,52.5694,11.9702
+Alter-Wachturm-Rathenow,52.6102,12.3392
+Aussichtsturm-Fehrbellin,52.7845,12.8122
+Berliner-Golfclub-Stolper-Heide,52.6828,13.2384
+Botanischer-Volkspark-Blankenfelde-Pankow,52.5855,13.4309
+Spielplatz-Bahnitz,52.4222,12.4414
+Wasserwerk-Tangerhütte,52.4173,11.8988
+Havelsee,52.4936,12.4284
+Relaisstation-Nauen,52.6025,12.887
+Funkmast-Dallgow-Döberitz,52.5458,13.0642
+Funkturm-Charlottenburg,52.5065,13.2676
+Neuer-Friedhof-Ihleburg,52.4442,12.3274
+Königsroderhof-Fiener-Bruch,52.3683,12.0837
+Rochow,52.2858,12.7214
+Schloss-Caputh,52.3394,13.003
+Ruinen-am-Wannsee,52.4147,13.1672
+Schloss-Britz,52.4578,13.4682
+Oranienburg,52.7533,13.2427
+Brandenburg-an-der-Havel,52.4172,12.5592
+Potsdam,52.3923,13.0645
+Teltow,52.4042,13.2847
+Berlin-Alexanderplatz,52.5219,13.4135`;
 
-const dataWidth = maxX - minX;
-const dataHeight = maxY - minY;
+const geoData = geoDataRaw.split('\n').map(row => {
+    const [Name, Latitude, Longitude] = row.split(',');
+    return { Name, Latitude: +Latitude, Longitude: +Longitude };
+});
 
-const scaleX = width / dataWidth;
-const scaleY = height / dataHeight;
+// Calculate min/max for geographical coordinates
+const allLatitudes = geoData.map(d => d.Latitude);
+const allLongitudes = geoData.map(d => d.Longitude);
 
-// Use the smaller scale to maintain aspect ratio
-const scale = Math.min(scaleX, scaleY) * 0.9; // Scale down slightly to add padding
+const minLat = d3.min(allLatitudes);
+const maxLat = d3.max(allLatitudes);
+const minLon = d3.min(allLongitudes);
+const maxLon = d3.max(allLongitudes);
 
-const offsetX = (width - dataWidth * scale) / 2;
-const offsetY = (height - dataHeight * scale) / 2;
+const geoWidth = maxLon - minLon;
+const geoHeight = maxLat - minLat;
 
-const nodes = graphData.nodes.map(d => ({
-    ...d,
-    x: (d.center.x - minX) * scale + offsetX,
-    y: (d.center.y - minY) * scale + offsetY
-}));
+// Determine scaling factor to fit within SVG viewBox
+const padding = 0.1; // 10% padding
+const scaleX = (width * (1 - padding)) / geoWidth;
+const scaleY = (height * (1 - padding)) / geoHeight;
+const scale = Math.min(scaleX, scaleY); // Use smaller scale to maintain aspect ratio
+
+// Calculate offsets to center the projected map
+const offsetX = (width - geoWidth * scale) / 2;
+const offsetY = (height - geoHeight * scale) / 2;
+
+const nodes = graphData.nodes.map(d => {
+    const geo = geoData.find(g => g.Name === d.label);
+    let projectedX, projectedY;
+
+    if (geo) {
+        // Simple linear projection and scaling
+        projectedX = (geo.Longitude - minLon) * scale + offsetX;
+        projectedY = (maxLat - geo.Latitude) * scale + offsetY; // Invert Y for SVG
+    } else {
+        // Fallback if geo data is missing (should not happen)
+        console.warn(`Geographical data missing for node: ${d.label}`);
+        projectedX = width / 2;
+        projectedY = height / 2;
+    }
+
+    return {
+        ...d,
+        x: projectedX,
+        y: projectedY,
+        originalGeo: geo // Store original geo data for reference
+    };
+});
 
 const links = graphData.edges.map(d => ({ ...d }));
 
-// Re-introduce force simulation
+// Re-introduce force simulation with geographical restoring forces
 const simulation = d3.forceSimulation(nodes)
-    .force("link", d3.forceLink(links).id(d => d.index).distance(80).strength(0.1))
-    .force("charge", d3.forceManyBody().strength(-200))
-    .force("center", d3.forceCenter(width / 2, height / 2))
-    .force("collide", d3.forceCollide().radius(20));
+    .force("link", d3.forceLink(links).id(d => d.index).distance(80).strength(0.1)) // Keep link force
+    .force("charge", d3.forceManyBody().strength(-50)) // Very weak repulsion
+    .force("x", d3.forceX(d => d.x).strength(0.1)) // Pull towards geographical x
+    .force("y", d3.forceY(d => d.y).strength(0.1)) // Pull towards geographical y
+    .force("collide", d3.forceCollide().radius(25)); // Collision to prevent overlaps
 
 // Fixed Node Positioning
 const mahlwinkelNode = nodes.find(n => n.label === "Mahlwinkel");
 const berlinAlexanderplatzNode = nodes.find(n => n.label === "Berlin-Alexanderplatz");
 
 if (mahlwinkelNode) {
+    // Set fx/fy to their projected geographical position first
+    mahlwinkelNode.fx = mahlwinkelNode.x;
+    mahlwinkelNode.fy = mahlwinkelNode.y;
+    // Then adjust to desired fixed position
     mahlwinkelNode.fx = 40; // Mid-left
     mahlwinkelNode.fy = height / 2;
 }
 if (berlinAlexanderplatzNode) {
+    // Set fx/fy to their projected geographical position first
+    berlinAlexanderplatzNode.fx = berlinAlexanderplatzNode.x;
+    berlinAlexanderplatzNode.fy = berlinAlexanderplatzNode.y;
+    // Then adjust to desired fixed position
     berlinAlexanderplatzNode.fx = width - 40; // Mid-right
     berlinAlexanderplatzNode.fy = height / 2;
 }
@@ -153,16 +213,16 @@ const node = svg.append("g")
     .classed("fixed", d => d.fx !== null); // Add class for fixed nodes
 
 node.append("circle")
-    .attr("r", 7) // Slightly larger radius for better visibility
+    .attr("r", 5) // Reduced radius
     .attr("fill", "#007bff");
 
 node.append("text")
     .attr("class", "label-bg")
-    .attr("dy", "-1.4em")
+    .attr("dy", "-1.2em")
     .text(d => d.label.replace(/-/g, " "));
 
 node.append("text")
-    .attr("dy", "-1.4em")
+    .attr("dy", "-1.2em")
     .text(d => d.label.replace(/-/g, " "));
 
 simulation.on("tick", () => {
@@ -208,7 +268,7 @@ node.on('click', function (event, d) {
         node.classed('faded', false).classed('highlight', false);
         link.classed('faded', false).classed('outgoing-highlight', false);
     } else {
-        // Select node and highlight outgoing connections
+        // Select node and highlight all connections (incoming and outgoing)
         selectedNode = d;
 
         node.classed('faded', true);
@@ -216,17 +276,18 @@ node.on('click', function (event, d) {
 
         d3.select(this).classed('faded', false).classed('highlight', true);
 
-        // Highlight outgoing links
-        const outgoingLinks = link.filter(l => l.source.index === selectedNode.index);
-        outgoingLinks.classed('faded', false).classed('outgoing-highlight', true);
+        // Highlight all connected links
+        const connectedLinks = link.filter(l => l.source.index === selectedNode.index || l.target.index === selectedNode.index);
+        connectedLinks.classed('faded', false).classed('outgoing-highlight', true); // Using outgoing-highlight for all connected
 
-        // Highlight target nodes of outgoing links
-        const targetNodes = new Set();
-        outgoingLinks.each(l => {
-            targetNodes.add(l.target.index);
+        // Highlight all connected nodes
+        const connectedNodes = new Set();
+        connectedLinks.each(l => {
+            connectedNodes.add(l.source.index);
+            connectedNodes.add(l.target.index);
         });
 
-        node.filter(n => targetNodes.has(n.index))
+        node.filter(n => connectedNodes.has(n.index))
             .classed('faded', false);
     }
 });

@@ -68,7 +68,7 @@ h2 {
 
 .node circle {
     stroke: #fff;
-    stroke-width: 1.5px;
+    stroke-width: 2px; /* Changed from 1.5px to 2px */
     transition: transform 0.2s ease-in-out, fill 0.2s ease-in-out;
 }
 
@@ -202,6 +202,12 @@ thead th {
 
 .link.faded {
     stroke-opacity: 0.1;
+}
+
+.link.outgoing-highlight {
+    stroke: #007bff; /* Blue color for highlighted outgoing links */
+    stroke-width: 3px;
+    stroke-opacity: 1;
 }
 
 @media (max-width: 992px) {
