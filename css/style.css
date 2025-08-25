@@ -76,10 +76,7 @@ h2 {
     transform: scale(1.5);
 }
 
-.node.fixed circle {
-    stroke: #dc3545; /* Red stroke for fixed nodes */
-    stroke-width: 3px;
-}
+/* Removed .node.fixed circle rule */
 
 .node text {
     font-size: 9px;
@@ -114,6 +111,10 @@ h2 {
     fill: #495057;
     pointer-events: none;
     text-anchor: middle;
+}
+
+.link-label.faded {
+    opacity: 0; /* Reverted to 0, removed !important */
 }
 
 #legend {
@@ -205,7 +206,7 @@ thead th {
 }
 
 .link.outgoing-highlight {
-    stroke: #007bff; /* Blue color for highlighted outgoing links */
+    /* Removed stroke: #007bff; */
     stroke-width: 3px;
     stroke-opacity: 1;
 }
