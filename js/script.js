@@ -19,6 +19,7 @@ const height = +svg.attr("viewBox").split(' ')[3];
 
 let link, linkLabels, node; // Will be assigned in initializeGraph
 let selectedNode = null;
+let nodeLabelToIndex = new Map(); // Moved here for global access
 
 // --- Data ---
 const geoDataRaw = `Name,Latitude,Longitude
@@ -187,6 +188,11 @@ function initializeGraph() {
             originalGeo: geo, // Store original geo data for reference
             index: i // Assign index for D3 and lookup
         };
+    });
+
+    // Populate the map for table editing
+    nodes.forEach(n => {
+        nodeLabelToIndex.set(n.label, n.index);
     });
 
     const links = graphData.edges.map(d => ({
