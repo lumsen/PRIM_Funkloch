@@ -16,6 +16,7 @@ let link, linkLabels, node; // Will be assigned in initializeGraph
 let selectedNode = null;
 let selectedLink = null;
 let nodeLabelToIndex = new Map();
+let currentBridgeSegments = []; // New: Store currently highlighted bridge segments
 
 export function initializeGraph() {
     console.log('initializeGraph called.');
@@ -109,6 +110,66 @@ export function initializeGraph() {
     initializeTable(nodes, links, nodeLabelToIndex);
 }
 
+export function highlightCommunicationBridge(einsaetzeData, currentTime) {
+    // Clear all previous highlights
+    if (link) {
+        link.classed('communication-bridge', false)
+            .classed('movement-path', false)
+            .classed('supply-path', false);
+    }
+    if (linkLabels) {
+        linkLabels.classed('communication-bridge-label', false)
+            .classed('movement-label', false)
+            .classed('supply-label', false);
+    }
+    if (node) {
+        node.classed('active-node', false)
+            .classed('trupp-location', false);
+    }
+
+    const activeMissions = einsaetzeData.filter(einsatz => {
+        const missionStartTime = new Date(einsatz.startzeit);
+        const missionEndTime = new Date(einsatz.endzeit);
+        return currentTime >= missionStartTime && currentTime <= missionEndTime;
+    });
+
+    const activeTrupps = new Set();
+
+    activeMissions.forEach(mission => {
+        activeTrupps.add(mission.truppname);
+
+        // Highlight nodes where trupps are currently located or involved in a mission
+        if (node) {
+            node.filter(n => n.label === mission.startort || n.label === mission.endort)
+                .classed('active-node', true);
+        }
+
+        // Highlight links based on mission type
+        if (link) {
+            link.filter(l => 
+                (l.source.label === mission.startort && l.target.label === mission.endort) ||
+                (l.source.label === mission.endort && l.target.label === mission.startort)
+            ).classed('communication-bridge', mission.type === 'Relay')
+             .classed('movement-path', mission.type === 'Bewegung')
+             .classed('supply-path', mission.type === 'Batterie aufladen' || mission.description.includes('Batterie abholen') || mission.description.includes('Batterie liefern'));
+        }
+
+        if (linkLabels) {
+            linkLabels.filter(l => 
+                (l.source.label === mission.startort && l.target.label === mission.endort) ||
+                (l.source.label === mission.endort && l.target.label === mission.startort)
+            ).classed('communication-bridge-label', mission.type === 'Relay')
+             .classed('movement-label', mission.type === 'Bewegung')
+             .classed('supply-label', mission.type === 'Batterie aufladen' || mission.description.includes('Batterie abholen') || mission.description.includes('Batterie liefern'));
+        }
+    });
+
+    // Highlight nodes where active trupps are currently located
+    // This requires knowing the current location of each trupp, which isn't directly in einsaetzeData for all times.
+    // For now, we'll rely on mission start/end points.
+    // A more sophisticated approach would involve tracking trupp positions over time.
+}
+
 function handleNodeClick(event, d) {
     console.log("Node clicked:", d.label);
     if (event.defaultPrevented) return; // Ignore click if it was part of a drag
@@ -168,8 +229,8 @@ function resetGraphView() {
     selectedNode = null;
     selectedLink = null;
     node.classed('faded', false).classed('highlight', false);
-    link.classed('faded', false).classed('outgoing-highlight', false).classed('highlight', false);
-    linkLabels.classed('faded', false);
+    link.classed('faded', false).classed('outgoing-highlight', false).classed('highlight', false).classed('communication-bridge', false); // Also remove bridge highlight
+    linkLabels.classed('faded', false).classed('communication-bridge-label', false); // Also remove bridge label highlight
     // Remove highlighting from table headers and cells
     d3.selectAll("#matrix-container th, #matrix-container td").classed('highlight-col', false);
     // Remove highlighting from table rows

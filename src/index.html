@@ -15,6 +15,40 @@
     </header>
 
     <main class="container">
+        <div class="info-section">
+            <h2>Über das Spiel: PRIM Funkloch</h2>
+            <p>
+                Willkommen bei PRIM Funkloch, einem strategischen Planungstool zur Verwaltung von Trupps und Einsätzen in einem postapokalyptischen Szenario.
+                Ihre Aufgabe ist es, Kommunikationsbrücken zwischen wichtigen Orten aufzubauen und aufrechtzuerhalten, während Sie verschiedene Risikostufen und Truppeneigenschaften berücksichtigen.
+            </p>
+            <h3>Prämisse</h3>
+            <p>
+                Nach einem katastrophalen Ereignis ist die Kommunikation zusammengebrochen. Sie sind Teil einer Einheit, die versucht, ein Funknetzwerk wiederherzustellen.
+                Dazu müssen Sie Trupps entsenden, die Relaispunkte besetzen und Batterien für Techniktrupps transportieren.
+                Jeder Einsatz birgt Risiken, und die Ressourcen sind begrenzt.
+            </p>
+            <h3>Regeln und Eigenschaften</h3>
+            <ul>
+                <li><b>Trupps:</b> Es gibt zwei Haupttypen von Trupps:
+                    <ul>
+                        <li><b>Techniktrupps (BeROp-[XX]):</b> Diese sind statisch (Bewegungsgeschwindigkeit 0 km/h) und dienen als Relaispunkte. Sie benötigen Batterien, die von regulären Trupps geliefert werden müssen. Ihre Reichweite von 50 km bezieht sich auf die Abdeckung als Relais.</li>
+                        <li><b>Reguläre Trupps (WD-[XX], BER-[XX], BAST-[XX]):</b> Diese Trupps sind mobil und können Batterien transportieren. Sie haben unterschiedliche Stärken, Reichweiten, Geschwindigkeiten und Ruhezeiten. Ihre Ausrüstung ist entscheidend für die Bewältigung von Risiken.</li>
+                    </ul>
+                </li>
+                <li><b>Risikostufen:</b> Jede Verbindung zwischen Orten hat eine Risikostufe (R0-R5), die die Anforderungen an die Truppstärke und Ausrüstung beeinflusst.
+                    <ul>
+                        <li><b>R1 (Sicher):</b> Geringes Risiko.</li>
+                        <li><b>R2 (Mittel):</b> Mittleres Risiko.</li>
+                        <li><b>R3 (Hoch):</b> Hohes Risiko.</li>
+                        <li><b>R4 (Sehr Hoch):</b> Erfordert spezielle Ausrüstung (CombatMedic oder Überwachung).</li>
+                        <li><b>R5 (Kritisch):</b> Erfordert spezielle Ausrüstung (Veteran).</li>
+                    </ul>
+                </li>
+                <li><b>Batterien und Ladestationen:</b> Techniktrupps verbrauchen Batterien. Leere Batterien müssen von regulären Trupps zu Ladestationen (Wannsee, Bahnitz) gebracht, aufgeladen und wieder zu den Techniktrupps zurücktransportiert werden.</li>
+                <li><b>Einsatzplanung:</b> Planen Sie Einsätze sorgfältig, um Kommunikationsbrücken aufrechtzuerhalten und Trupps effizient einzusetzen. Berücksichtigen Sie die Verfügbarkeit der Trupps und ihre Ruhezeiten.</li>
+            </ul>
+        </div>
+
         <div class="main-content">
             <div id="graph-container">
                 <div id="legend">
@@ -26,8 +60,19 @@
                     <div class="legend-item"><div class="legend-color" style="background-color: #8B0000;"></div>Kritisch (R5)</div>
                     <div class="legend-item"><div class="legend-color" style="background-color: #6c757d;"></div>Unbekannt (R0)</div>
                 </div>
+                <div id="timeline-legend" class="legend">
+                    <h4>Zeitliche Visualisierung</h4>
+                    <div class="legend-item"><div class="legend-color" style="background-color: #00ccff;"></div>Kommunikationsbrücke (Relais)</div>
+                    <div class="legend-item"><div class="legend-color" style="background-color: #9932CC;"></div>Trupp-Bewegung</div>
+                    <div class="legend-item"><div class="legend-color" style="background-color: #FFD700;"></div>Versorgungsmission</div>
+                    <div class="legend-item"><div class="legend-color" style="background-color: #ff6347;"></div>Aktiver Knoten</div>
+                </div>
                 <h2>Graph des Funknetzwerks (SL_Only)</h2>
                 <svg id="graph" viewBox="0 0 960 600" preserveAspectRatio="xMidYMid meet"></svg>
+                <div id="timeline-controls" style="margin-top: 20px; text-align: center;">
+                    <input type="range" id="time-slider" min="0" max="100" value="0" style="width: 80%;">
+                    <div id="current-time-display" style="margin-top: 10px; font-weight: bold;"></div>
+                </div>
             </div>
             <div id="map-container">
                 <h2>Geografische Kartenansicht</h2>
@@ -54,22 +99,53 @@
             <table id="trupps-table">
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Truppstärke</th>
-                        <th>Reichweite (km)</th>
-                        <th>Bewegungsgeschwindigkeit (km/h)</th>
-                        <th>Ruhezeit (h)</th>
+                        <th>Name
+                            <span class="tooltip-container">
+                                <span class="info-icon">?</span>
+                                <span class="tooltip">Eindeutiger Name des Trupps. Techniktrupps beginnen mit 'BeROp-', andere Trupps mit 'WD-', 'BER-' oder 'BAST-'.</span>
+                            </span>
+                        </th>
+                        <th>Truppstärke
+                            <span class="tooltip-container">
+                                <span class="info-icon">?</span>
+                                <span class="tooltip">Die Stärke des Trupps, beeinflusst die Fähigkeit, Risikostufen zu bewältigen.</span>
+                            </span>
+                        </th>
+                        <th>Reichweite (km)
+                            <span class="tooltip-container">
+                                <span class="info-icon">?</span>
+                                <span class="tooltip">Maximale Distanz, die der Trupp in einem Einsatz abdecken kann. Für Techniktrupps ist dies die Relais-Reichweite.</span>
+                            </span>
+                        </th>
+                        <th>Bewegungsgeschwindigkeit (km/h)
+                            <span class="tooltip-container">
+                                <span class="info-icon">?</span>
+                                <span class="tooltip">Geschwindigkeit, mit der sich der Trupp zwischen Einsatzpunkten bewegt. Techniktrupps sind statisch (0 km/h).</span>
+                            </span>
+                        </th>
+                        <th>Ruhezeit (h)
+                            <span class="tooltip-container">
+                                <span class="info-icon">?</span>
+                                <span class="tooltip">Erforderliche Ruhezeit nach einem Einsatz, bevor der Trupp wieder verfügbar ist.</span>
+                            </span>
+                        </th>
                         <th>Ausrüstung
                             <span class="tooltip-container">
                                 <span class="info-icon">?</span>
                                 <span class="tooltip">
                                     <b>CombatMedic:</b> Wird benötigt ab Risiko 4.<br>
                                     <b>Überwachung:</b> Einmaliger Ersatz für CombatMedic bei Risiko 4 (wird zerstört).<br>
-                                    <b>Veteran:</b> Überlebensnotwendig bei Risiko 5.
+                                    <b>Veteran:</b> Überlebensnotwendig bei Risiko 5.<br>
+                                    <b>Batterie:</b> Spezielle Ausrüstung für Techniktrupps zur Energieversorgung.
                                 </span>
                             </span>
                         </th>
-                        <th>Aktueller Einsatzpunkt</th>
+                        <th>Aktueller Einsatzpunkt
+                            <span class="tooltip-container">
+                                <span class="info-icon">?</span>
+                                <span class="tooltip">Der aktuelle geografische Standort des Trupps.</span>
+                            </span>
+                        </th>
                         <th>Aktionen</th>
                     </tr>
                 </thead>

@@ -1,8 +1,11 @@
 import { graphData } from './graphData.js';
 
+function formatCounter() {
+    return String(Math.floor(Math.random() * 100)).padStart(2, '0');
+}
+
 export function generateTrupps() {
     let generatedTrupps = [];
-    let truppIdCounter = 1;
 
     const numTechniktrupps = 5; // 5 fixed Techniktrupps
     const numRegularTrupps = 5; // Start with a smaller number to encourage minimal generation
@@ -19,49 +22,52 @@ export function generateTrupps() {
 
     const techniktruppLocations = Array.from(longDistanceNodes).slice(0, numTechniktrupps);
 
-    // Generate Techniktrupps
+    // Generiert Techniktrupps (BeROp-Trupps)
     for (let i = 0; i < numTechniktrupps; i++) {
         const newTrupp = {
-            id: truppIdCounter++,
-            name: `Techniktrupp ${i + 1}`,
-            staerke: 3, // Fixed strength for Techniktrupps
-            reichweite: 0, // Stationary for relay
-            geschwindigkeit: 5, // Movement speed for deployment
-            ruhezeit: 0, // Techniktrupps don't have rest time in the same way
-            ausruestung: 'Batterie', // Techniktrupps have Batterie equipment
-            einsatzzeitMax: 8, // Operational time per battery
-            verbleibendeBatteriezeit: 8, // Initial battery life
-            benoetigtBatterie: false,
-            aktuellerEinsatzpunkt: techniktruppLocations[i] || graphData.nodes[Math.floor(Math.random() * graphData.nodes.length)].label, // Assign specific location or random if not enough
-            naechsteVerfuegbarkeit: new Date("2025-08-26T04:00"),
+            id: Math.floor(Math.random() * 100000), // Eindeutige ID des Trupps
+            name: `BeROp-${formatCounter()}`, // Name des Techniktrupps (BeROp-[XX])
+            staerke: 3, // Stärke des Trupps (festgelegt für Techniktrupps)
+            reichweite: 50, // Maximale Reichweite für Relais-Einsätze in km
+            geschwindigkeit: 0, // Bewegungsgeschwindigkeit in km/h (statische Truppen)
+            ruhezeit: 0, // Ruhezeit in Stunden (Techniktrupps haben keine klassische Ruhezeit)
+            ausruestung: 'Batterie', // Spezielle Ausrüstung (z.B. 'Batterie' für Techniktrupps)
+            einsatzzeitMax: 8, // Maximale Einsatzzeit pro Batterieladung in Stunden
+            verbleibendeBatteriezeit: 8, // Verbleibende Batterielaufzeit in Stunden
+            benoetigtBatterie: false, // Flag, ob der Trupp eine Batterieladung benötigt
+            aktuellerEinsatzpunkt: techniktruppLocations[i] || graphData.nodes[Math.floor(Math.random() * graphData.nodes.length)].label, // Aktueller Standort des Trupps
+            naechsteVerfuegbarkeit: new Date("2025-08-26T04:00"), // Zeitpunkt, ab dem der Trupp wieder verfügbar ist
         };
         generatedTrupps.push(newTrupp);
     }
 
-    // Generate Regular Trupps
+    // Generiert reguläre Trupps (WD-, BER-, BAST-Trupps)
     for (let i = 0; i < numRegularTrupps; i++) {
-        const einsatzdauer = 1 + Math.floor(Math.random() * 5); // Einsatzlänge between 1-5 hours
+        const einsatzdauer = 1 + Math.floor(Math.random() * 5); // Einsatzlänge zwischen 1-5 Stunden
         let ruhezeit;
         if (einsatzdauer <= 2) {
-            ruhezeit = 1 + Math.floor(Math.random() * 3); // 1-3 hours
+            ruhezeit = 1 + Math.floor(Math.random() * 3); // Ruhezeit zwischen 1-3 Stunden
         } else {
-            ruhezeit = 3 + Math.floor(Math.random() * 3); // 3-5 hours
+            ruhezeit = 3 + Math.floor(Math.random() * 3); // Ruhezeit zwischen 3-5 Stunden
         }
 
-        const equipmentOptions = ['CombatMedic', 'Überwachung', 'Veteran', 'None', 'None', 'None']; // Higher chance for None
-        const ausruestung = equipmentOptions[Math.floor(Math.random() * equipmentOptions.length)];
+        const equipmentOptions = ['CombatMedic', 'Überwachung', 'Veteran', 'None', 'None', 'None']; // Optionen für Ausrüstung
+        const ausruestung = equipmentOptions[Math.floor(Math.random() * equipmentOptions.length)]; // Zufällige Ausrüstung
+
+        const prefixes = ['WD-', 'BER-', 'BAST-'];
+        const truppNamePrefix = prefixes[Math.floor(Math.random() * prefixes.length)]; // Zufälliges Präfix für den Truppnamen
 
         const newTrupp = {
-            id: truppIdCounter++,
-            name: `Trupp ${i + 1}`,
-            staerke: 4 + Math.floor(Math.random() * 7), // Strength between 4 and 10 (min 2x risk level 5 = 10)
-            einsatzdauer: einsatzdauer, // Operational duration
-            reichweite: 20 + Math.floor(Math.random() * 41), // Range between 20 and 60 km
-            geschwindigkeit: 4 + Math.floor(Math.random() * 5), // Speed between 4 and 8 km/h
-            ruhezeit: ruhezeit, // Rest time based on einsatzdauer
-            ausruestung: ausruestung,
-            aktuellerEinsatzpunkt: graphData.nodes[Math.floor(Math.random() * graphData.nodes.length)].label,
-            naechsteVerfuegbarkeit: new Date("2025-08-26T04:00"),
+            id: Math.floor(Math.random() * 100000), // Eindeutige ID des Trupps
+            name: `${truppNamePrefix}${formatCounter()}`, // Name des Trupps (WD/BER/BAST-[XX])
+            staerke: 4 + Math.floor(Math.random() * 7), // Stärke des Trupps (zwischen 4 und 10)
+            einsatzdauer: einsatzdauer, // Dauer eines Einsatzes in Stunden
+            reichweite: 25, // Maximale Reichweite in km (festgelegt auf 25 km)
+            geschwindigkeit: 4 + Math.floor(Math.random() * 5), // Bewegungsgeschwindigkeit in km/h (zwischen 4 und 8 km/h)
+            ruhezeit: ruhezeit, // Ruhezeit in Stunden nach einem Einsatz
+            ausruestung: ausruestung, // Spezielle Ausrüstung (z.B. 'CombatMedic', 'Überwachung', 'Veteran')
+            aktuellerEinsatzpunkt: graphData.nodes[Math.floor(Math.random() * graphData.nodes.length)].label, // Aktueller Standort des Trupps
+            naechsteVerfuegbarkeit: new Date("2025-08-26T04:00"), // Zeitpunkt, ab dem der Trupp wieder verfügbar ist
         };
         generatedTrupps.push(newTrupp);
     }
@@ -76,9 +82,10 @@ let _nextTruppId = _truppsData.length > 0 ? Math.max(..._truppsData.map(t => t.i
 // Initial Einsaetze data will be generated dynamically
 import { generateMissionPlan } from '../logic/missionPlanner.js';
 
-const initialEinsaetzeData = generateMissionPlan(); // Generate initial mission plan
-let _einsaetzeData = [...initialEinsaetzeData]; // Use a private variable for the mutable array
-let _nextEinsatzId = _einsaetzeData.length > 0 ? Math.max(..._einsaetzeData.map(e => e.id)) + 1 : 1;
+// Initial Einsaetze data will be generated dynamically
+let _einsaetzeData = []; // Use a private variable for the mutable array
+let _bridgeSegments = []; // New: Store bridge segments
+let _nextEinsatzId = 1; // Start ID from 1
 
 
 // Trupps CRUD operations
@@ -123,8 +130,13 @@ export function updateEinsatz(updatedEinsatz) {
     }
 }
 
-export function setEinsaetzeData(newEinsaetze) {
+export function getBridgeSegments() {
+    return _bridgeSegments;
+}
+
+export function setEinsaetzeData(newEinsaetze, newBridgeSegments = []) {
     _einsaetzeData = newEinsaetze;
+    _bridgeSegments = newBridgeSegments;
     _nextEinsatzId = _einsaetzeData.length > 0 ? Math.max(..._einsaetzeData.map(e => e.id)) + 1 : 1;
 }
 
@@ -140,7 +152,9 @@ export function resetAppData() {
     _truppsData = [...regeneratedTrupps];
     _nextTruppId = _truppsData.length > 0 ? Math.max(..._truppsData.map(t => t.id)) + 1 : 1;
 
-    const regeneratedEinsaetze = generateMissionPlan();
-    _einsaetzeData = [...regeneratedEinsaetze];
+    // Regenerate mission plan and bridge segments
+    const { missions, bridgeSegments } = generateMissionPlan();
+    _einsaetzeData = [...missions];
+    _bridgeSegments = [...bridgeSegments];
     _nextEinsatzId = _einsaetzeData.length > 0 ? Math.max(..._einsaetzeData.map(e => e.id)) + 1 : 1;
 }

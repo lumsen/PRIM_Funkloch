@@ -413,3 +413,66 @@ td.diagonal {
     background-color: var(--primary-color);
     color: var(--white);
 }
+
+/* Communication Bridge Styling */
+.link.communication-bridge {
+    stroke: #00ccff; /* A distinct color for the bridge */
+    stroke-width: 4px;
+    stroke-dasharray: 5, 5; /* Dashed line for better visibility */
+    animation: dash 1s linear infinite; /* Optional: animate the dash */
+}
+
+.link-label.communication-bridge-label {
+    fill: #00ccff;
+    font-weight: bold;
+    font-size: 10px;
+}
+
+@keyframes dash {
+    to {
+        stroke-dashoffset: -10;
+    }
+}
+
+/* New styles for different mission types and active elements */
+
+/* Active Nodes (where a mission is currently happening or a trupp is located) */
+.node.active-node circle {
+    fill: #ff6347; /* Tomato red for active nodes */
+    stroke: #fff;
+    stroke-width: 3px;
+}
+
+.node.trupp-location circle {
+    fill: #4CAF50; /* Green for trupp locations */
+    stroke: #fff;
+    stroke-width: 3px;
+}
+
+/* Movement Path */
+.link.movement-path {
+    stroke: #9932CC; /* Dark Orchid for movement */
+    stroke-width: 3px;
+    stroke-dasharray: 3, 3;
+    animation: dash 0.7s linear infinite;
+}
+
+.link-label.movement-label {
+    fill: #9932CC;
+    font-weight: bold;
+    font-size: 9px;
+}
+
+/* Supply Path */
+.link.supply-path {
+    stroke: #FFD700; /* Gold for supply missions */
+    stroke-width: 3px;
+    stroke-dasharray: 8, 2;
+    animation: dash 1.2s linear infinite;
+}
+
+.link-label.supply-label {
+    fill: #FFD700;
+    font-weight: bold;
+    font-size: 9px;
+}
