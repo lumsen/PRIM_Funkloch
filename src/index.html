@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Funknetzwerk-Visualisierung</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
+    <link rel="stylesheet" href="./css/style.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+
+    <header class="main-header">
+        <h1>Funknetzwerk-Visualisierung</h1>
+    </header>
+
+    <main class="container">
+        <div class="main-content">
+            <div id="graph-container">
+                <div id="legend">
+                    <h4>Risikostufen</h4>
+                    <div class="legend-item"><div class="legend-color" style="background-color: #28a745;"></div>Sicher (R1)</div>
+                    <div class="legend-item"><div class="legend-color" style="background-color: #ffc107;"></div>Mittel (R2)</div>
+                    <div class="legend-item"><div class="legend-color" style="background-color: #fd7e14;"></div>Hoch (R3)</div>
+                    <div class="legend-item"><div class="legend-color" style="background-color: #dc3545;"></div>Sehr Hoch (R4)</div>
+                    <div class="legend-item"><div class="legend-color" style="background-color: #8B0000;"></div>Kritisch (R5)</div>
+                    <div class="legend-item"><div class="legend-color" style="background-color: #6c757d;"></div>Unbekannt (R0)</div>
+                </div>
+                <h2>Graph des Funknetzwerks (SL_Only)</h2>
+                <svg id="graph" viewBox="0 0 960 600" preserveAspectRatio="xMidYMid meet"></svg>
+            </div>
+            <div id="map-container">
+                <h2>Geografische Kartenansicht</h2>
+                <iframe src="https://www.google.com/maps/d/embed?mid=1LMTw9AeHnCRatB0koPwfw2Z2VHz5cNU&ehbc=2E312F&noprof=1"></iframe>
+            </div>
+        </div>
+
+        <div class="table-container" id="matrix-container">
+            <div class="table-header">
+                <h2>Kommunikationsmatrix: Orte und Verbindungen</h2>
+                <div>
+                    <button id="export-button" class="btn btn-primary">Aktuelle Daten exportieren</button>
+                    <button id="reset-button" class="btn btn-danger">Daten zurücksetzen</button>
+                </div>
+            </div>
+            <table>
+                <thead></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div class="table-container">
+            <h2>Trupps</h2>
+            <table id="trupps-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Truppstärke</th>
+                        <th>Reichweite (km)</th>
+                        <th>Bewegungsgeschwindigkeit (km/h)</th>
+                        <th>Ruhezeit (h)</th>
+                        <th>Ausrüstung
+                            <span class="tooltip-container">
+                                <span class="info-icon">?</span>
+                                <span class="tooltip">
+                                    <b>CombatMedic:</b> Wird benötigt ab Risiko 4.<br>
+                                    <b>Überwachung:</b> Einmaliger Ersatz für CombatMedic bei Risiko 4 (wird zerstört).<br>
+                                    <b>Veteran:</b> Überlebensnotwendig bei Risiko 5.
+                                </span>
+                            </span>
+                        </th>
+                        <th>Aktueller Einsatzpunkt</th>
+                        <th>Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Trupp-Daten werden hier per JavaScript eingefügt -->
+                </tbody>
+            </table>
+            <div class="add-form-container">
+                <h3>Neuen Trupp hinzufügen</h3>
+                <form id="add-trupp-form" class="add-form">
+                    <input type="text" id="trupp-name" placeholder="Name" required>
+                    <input type="number" id="trupp-staerke" placeholder="Truppstärke" required>
+                    <input type="number" id="trupp-reichweite" placeholder="Reichweite" required>
+                    <input type="number" id="trupp-geschwindigkeit" placeholder="Geschwindigkeit" required>
+                    <input type="number" id="trupp-ruhezeit" placeholder="Ruhezeit" required>
+                    <input type="text" id="trupp-ausruestung" placeholder="Ausrüstung" required>
+                    <button type="submit" class="btn btn-primary">Hinzufügen</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <h2>Einsätze</h2>
+            <table id="einsaetze-table">
+                <thead>
+                    <tr>
+                        <th>Truppname</th>
+                        <th>Startzeit</th>
+                        <th>Startort</th>
+                        <th>Endort</th>
+                        <th>Endzeit</th>
+                        <th>Missionstyp</th>
+                        <th>Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Einsatz-Daten werden hier per JavaScript eingefügt -->
+                </tbody>
+            </table>
+            <div class="add-form-container">
+                <h3>Neuen Einsatz hinzufügen</h3>
+                <form id="add-einsatz-form" class="add-form">
+                    <input type="text" id="einsatz-truppname" placeholder="Truppname" required>
+                    <input type="text" id="einsatz-startzeit" placeholder="Startzeit" required>
+                    <input type="text" id="einsatz-startort" placeholder="Startort" required>
+                    <input type="text" id="einsatz-endort" placeholder="Endort" required>
+                    <input type="text" id="einsatz-endzeit" placeholder="Endzeit" required>
+                    <button type="submit" class="btn btn-primary">Hinzufügen</button>
+                </form>
+            </div>
+            <button id="generate-einsaetze-button" class="btn btn-primary" style="margin-top: 10px;">Einsätze generieren</button>
+        </div>
+    </main>
+
+    <script type="module" src="./js/script.js"></script>
+</body>
+</html>
