@@ -4,99 +4,98 @@ import { getTruppsData, setTruppsData, getEinsaetzeData, setEinsaetzeData, gener
 import { initializeGraph } from '../ui/graph.js';
 import { renderTruppsTable } from '../ui/trupps.js';
 import { renderEinsaetzeTable } from '../ui/einsaetze.js';
-import { generateMissionPlan } from '../logic/missionPlanner.js';
 
-export function getRiskClass(risk) { return `cell-${risk}`}
-export function getLinkClass(risk) { return `link link-${risk}`}
+export function getRiskClass(risk) { return `cell-${risk}`;}
+export function getLinkClass(risk) { return `link link-${risk}`;}
 
 export function saveData() {
-    console.log('Saving data...');
-    try {
-        localStorage.setItem(LOCAL_STORAGE_KEY_GRAPH, JSON.stringify(graphData.edges));
-        localStorage.setItem(LOCAL_STORAGE_KEY_TRUPPS, JSON.stringify(getTruppsData()));
-        localStorage.setItem(LOCAL_STORAGE_KEY_EINSAETZE, JSON.stringify(getEinsaetzeData()));
-        console.log('Data saved successfully.');
-    }
-    catch (e) {
-        console.error("Failed to save data to localStorage", e);
-    }
+  console.log('Saving data...');
+  try {
+    localStorage.setItem(LOCAL_STORAGE_KEY_GRAPH, JSON.stringify(graphData.edges));
+    localStorage.setItem(LOCAL_STORAGE_KEY_TRUPPS, JSON.stringify(getTruppsData()));
+    localStorage.setItem(LOCAL_STORAGE_KEY_EINSAETZE, JSON.stringify(getEinsaetzeData()));
+    console.log('Data saved successfully.');
+  }
+  catch (e) {
+    console.error('Failed to save data to localStorage', e);
+  }
 }
 
 export function loadData() {
-    console.log('Loading data...');
-    // Load graph edges
-    const savedEdges = localStorage.getItem(LOCAL_STORAGE_KEY_GRAPH);
-    if (savedEdges) {
-        try {
-            graphData.edges = JSON.parse(savedEdges);
-            console.log('Graph data loaded successfully.', graphData.edges);
-        }
-        catch (e) {
-            console.error("Failed to parse saved graph data", e);
-            localStorage.removeItem(LOCAL_STORAGE_KEY_GRAPH);
-        }
-    } else {
-        console.log('No saved graph data found.');
+  console.log('Loading data...');
+  // Load graph edges
+  const savedEdges = localStorage.getItem(LOCAL_STORAGE_KEY_GRAPH);
+  if (savedEdges) {
+    try {
+      graphData.edges = JSON.parse(savedEdges);
+      console.log('Graph data loaded successfully.', graphData.edges);
     }
+    catch (e) {
+      console.error('Failed to parse saved graph data', e);
+      localStorage.removeItem(LOCAL_STORAGE_KEY_GRAPH);
+    }
+  } else {
+    console.log('No saved graph data found.');
+  }
 
-    // Load trupps data
-    const savedTrupps = localStorage.getItem(LOCAL_STORAGE_KEY_TRUPPS);
-    if (savedTrupps) {
-        try {
-            const parsedTrupps = JSON.parse(savedTrupps);
-            // Convert naechsteVerfuegbarkeit back to Date objects
-            parsedTrupps.forEach(trupp => {
-                if (trupp.naechsteVerfuegbarkeit) {
-                    trupp.naechsteVerfuegbarkeit = new Date(trupp.naechsteVerfuegbarkeit);
-                }
-            });
-            setTruppsData(parsedTrupps);
-            console.log('Trupps data loaded successfully.', getTruppsData());
+  // Load trupps data
+  const savedTrupps = localStorage.getItem(LOCAL_STORAGE_KEY_TRUPPS);
+  if (savedTrupps) {
+    try {
+      const parsedTrupps = JSON.parse(savedTrupps);
+      // Convert naechsteVerfuegbarkeit back to Date objects
+      parsedTrupps.forEach(trupp => {
+        if (trupp.naechsteVerfuegbarkeit) {
+          trupp.naechsteVerfuegbarkeit = new Date(trupp.naechsteVerfuegbarkeit);
         }
-        catch (e) {
-            console.error("Failed to parse saved trupps data", e);
-            localStorage.removeItem(LOCAL_STORAGE_KEY_TRUPPS);
-            setTruppsData(generateTrupps()); // Regenerate if corrupted
-        }
-    } else {
-        console.log('No saved trupps data found. Generating initial trupps.');
-        setTruppsData(generateTrupps());
+      });
+      setTruppsData(parsedTrupps);
+      console.log('Trupps data loaded successfully.', getTruppsData());
     }
+    catch (e) {
+      console.error('Failed to parse saved trupps data', e);
+      localStorage.removeItem(LOCAL_STORAGE_KEY_TRUPPS);
+      setTruppsData(generateTrupps()); // Regenerate if corrupted
+    }
+  } else {
+    console.log('No saved trupps data found. Generating initial trupps.');
+    setTruppsData(generateTrupps());
+  }
 
-    // Load einsaetze data
-    const savedEinsaetze = localStorage.getItem(LOCAL_STORAGE_KEY_EINSAETZE);
-    if (savedEinsaetze) {
-        try {
-            setEinsaetzeData(JSON.parse(savedEinsaetze));
-            console.log('Einsaetze data loaded successfully.', getEinsaetzeData());
-        }
-        catch (e) {
-            console.error("Failed to parse saved einsaetze data", e);
-            localStorage.removeItem(LOCAL_STORAGE_KEY_EINSAETZE);
-            setEinsaetzeData([]); // Clear if corrupted, will be regenerated by script.js
-        }
-    } else {
-        console.log('No saved einsaetze data found.');
-        setEinsaetzeData([]); // Ensure it's empty if not found, so script.js can generate
+  // Load einsaetze data
+  const savedEinsaetze = localStorage.getItem(LOCAL_STORAGE_KEY_EINSAETZE);
+  if (savedEinsaetze) {
+    try {
+      setEinsaetzeData(JSON.parse(savedEinsaetze));
+      console.log('Einsaetze data loaded successfully.', getEinsaetzeData());
     }
+    catch (e) {
+      console.error('Failed to parse saved einsaetze data', e);
+      localStorage.removeItem(LOCAL_STORAGE_KEY_EINSAETZE);
+      setEinsaetzeData([]); // Clear if corrupted, will be regenerated by script.js
+    }
+  } else {
+    console.log('No saved einsaetze data found.');
+    setEinsaetzeData([]); // Ensure it's empty if not found, so script.js can generate
+  }
 }
 
 export function redrawEverything() {
-    console.log('Redrawing everything...');
-    d3.select("#graph").selectAll("*" ).remove();
-    initializeGraph();
-    renderTruppsTable();
-    renderEinsaetzeTable();
+  console.log('Redrawing everything...');
+  d3.select('#graph').selectAll('*' ).remove();
+  initializeGraph();
+  renderTruppsTable();
+  renderEinsaetzeTable();
 }
 
 export function formatDateTime(isoString) {
-    if (!isoString) return '';
-    const date = new Date(isoString);
-    // Format as DD.MM.YYYY HH:MM
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
-    const year = date.getFullYear();
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${day}.${month}.${year} ${hours}:${minutes}`;
+  if (!isoString) return '';
+  const date = new Date(isoString);
+  // Format as DD.MM.YYYY HH:MM
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+  const year = date.getFullYear();
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  return `${day}.${month}.${year} ${hours}:${minutes}`;
 }
