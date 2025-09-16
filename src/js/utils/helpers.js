@@ -99,3 +99,18 @@ export function formatDateTime(isoString) {
   const minutes = String(date.getMinutes()).padStart(2, '0');
   return `${day}.${month}.${year} ${hours}:${minutes}`;
 }
+
+// Redraw everything function to refresh the graph and table
+export function redrawEverything() {
+  console.log('Redrawing everything...');
+  // Clear the existing graph
+  d3.select('#graph').selectAll('*').remove();
+  // Clear the existing table
+  d3.select('#matrix-container table thead').html('');
+  d3.select('#matrix-container table tbody').html('');
+  // Re-import and re-run initializeGraph
+  // Using dynamic import to avoid circular dependencies
+  import('../ui/graph.js').then(({ initializeGraph }) => {
+    initializeGraph();
+  });
+}
