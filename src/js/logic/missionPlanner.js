@@ -310,10 +310,10 @@ function generateCommunicationBridgePlan(startNodeLabel, endNodeLabel, startTime
   const endDate = new Date(endTimeStr);
   let currentTime = new Date(startDate);
 
-  // numSegments not used in current logic
+  const numSegments = pathWithEdges.length;
 
   const allExistingTrupps = getTruppsData();
-  
+
   // Filter Techniktrupps to enforce the limit of 5
   const maxAllowedTechnikTrupps = 5;
   let filteredTechnikTrupps = allExistingTrupps.filter(t => t.ausruestung === 'Batterie');
@@ -329,9 +329,6 @@ function generateCommunicationBridgePlan(startNodeLabel, endNodeLabel, startTime
     console.warn(`Warning: More than ${maxAllowedMobileTrupps} regular troops exist. Using only the first ${maxAllowedMobileTrupps}.`);
     filteredMobileTrupps = filteredMobileTrupps.slice(0, maxAllowedMobileTrupps);
   }
-
-  // Calculate minTechnikTrupps but not used in current logic
-  // const minTechnikTrupps = Math.ceil(numSegments / 3);
 
   // Removed troop generation logic as per feedback.
   // The planner must now rely solely on existing troops.
@@ -359,6 +356,52 @@ function generateCommunicationBridgePlan(startNodeLabel, endNodeLabel, startTime
   for (const segment of pathWithEdges) {
     const segmentKey = `${segment.source}-${segment.target}`;
     segmentStates.set(segmentKey, { trupp: null, endTime: null, covered: false });
+  }
+
+  // Deploy technik trupps to segments
+  let deploymentTime = new Date(startDate);
+  for (let i = 0; i < Math.min(filteredTechnikTrupps.length, numSegments); i++) {
+    const segment = pathWithEdges[i];
+    const segmentKey = `${segment.source}-${segment.target}`;
+    if (!segmentStates.get(segmentKey).covered) {
+      const trupp = workingTrupps.find(t => t.ausruestung === 'Batterie' && t.naechsteVerfuegbarkeit <= deploymentTime);
+      if (trupp) {
+        // Move trupp to the segment start if not already there
+        if (trupp.aktuellerEinsatzpunkt !== segment.source) {
+          const pathToSegment = findPath(trupp.aktuellerEinsatzpunkt, segment.source);
+          if (pathToSegment && pathToSegment.length > 0) {
+            const result = addMovementMissionsForPath([trupp], pathToSegment, deploymentTime, 'zum Einsatzpunkt', plannedMissions, currentEinsatzId);
+            plannedMissions = result.missions;
+            currentEinsatzId = result.currentEinsatzId;
+            deploymentTime = result.finalTime;
+            trupp.naechsteVerfuegbarkeit = deploymentTime;
+          }
+        }
+        // Assign to segment
+        segmentStates.get(segmentKey).trupp = trupp;
+        segmentStates.get(segmentKey).endTime = endDate;
+        segmentStates.get(segmentKey).covered = true;
+        bridgeSegments.push({
+          source: segment.source,
+          target: segment.target,
+          truppname: trupp.name,
+          startzeit: deploymentTime.toISOString().slice(0, 16),
+          endzeit: endDate.toISOString().slice(0, 16),
+          type: 'Relay'
+        });
+        plannedMissions.push({
+          id: currentEinsatzId++,
+          truppname: trupp.name,
+          startzeit: deploymentTime.toISOString().slice(0, 16),
+          startort: segment.source,
+          endort: segment.target,
+          endzeit: endDate.toISOString().slice(0, 16),
+          type: 'Relay',
+          description: `${trupp.name} betreibt Relais von ${segment.source} nach ${segment.target}.`
+        });
+        trupp.naechsteVerfuegbarkeit = endDate;
+      }
+    }
   }
 
   while (currentTime < endDate) {
