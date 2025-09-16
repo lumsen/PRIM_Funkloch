@@ -1,113 +1,86 @@
 # PRIM Funkloch
 
-PRIM Funkloch is a strategic planning tool designed for managing squads and missions within a post-apocalyptic scenario. The application visualizes a radio network, allowing users to establish and maintain communication bridges between key locations while considering various risk levels and squad capabilities.
+Ein strategisches Planungstool zur Verwaltung von Trupps und Einsätzen in einem postapokalyptischen Szenario. Visualisiert ein Funknetzwerk und ermöglicht das Aufbauen und Aufrechterhalten von Kommunikationsbrücken zwischen wichtigen Orten unter Berücksichtigung verschiedener Risikostufen und Truppeneigenschaften.
 
-## Features
+## 🌐 Live Demo
 
-*   **Radio Network Visualization:** Interactive graph displaying communication links and squad movements, powered by D3.js.
-*   **Geographical Map Integration:** Embedded Google Maps for a spatial overview of the operational area.
-*   **Mission Planning:** Tools to plan and manage squad deployments, including resource management (batteries) and risk assessment.
-*   **Squad Management:** Interface to add, view, and manage different types of squads with unique attributes (strength, range, speed, equipment).
-*   **Mission Tracking:** Table to monitor ongoing and planned missions, including start/end times and locations.
-*   **Timeline Visualization:** A slider to visualize network activity and squad movements over time.
+[![richtext](https://github.com/lumsen/PRIM_Funkloch/raw/main/resources/demo-link.png)](https://lumsen.github.io/PRIM_Funkloch/)
 
-## Technologies Used
-
-*   HTML
-*   CSS
-*   JavaScript (ES Modules)
-*   D3.js (for graph visualization)
-
-## 🌐 **Live Demo**
-
-PRIM Funkloch ist **live verfügbar** auf GitHub Pages:
-
-➡️ **[Start PRIM Funkloch](https://lumsen.github.io/PRIM_Funkloch/)** ←️
+**Direktlink:** [Prim Funkloch spielen](https://lumsen.github.io/PRIM_Funkloch/)
 
 Die Anwendung läuft vollständig im Browser und erfordert keine Installation.
 
-## 🚀 Lokale Entwicklung
+## ✨ Features
 
-Für lokale Entwicklung empfehlen wir einen lokalen Webserver:
+- **Interaktive Netzwerk-Visualisierung:** Graph der Funkverbindungen und Trupp-Bewegungen mit D3.js
+- **Geografische Karte:** Eingebettete Google Maps zur räumlichen Übersicht
+- **Mission-Planning:** Planung von Trupp-Einsätzen mit Ressourcen-Management (Batterien) und Risiko-Bewertung
+- **Truppen-Management:** Tabelle zur Verwaltung verschiedener Trupp-Typen mit einzigartigen Attributen
+- **Einsatz-Verfolgung:** Übersicht aktiver und geplanter Missionen mit Zeit- und Standortdaten
+- **Zeitliche Visualisierung:** Slider zur Anzeige der Netzwerk-Aktivität über Zeit
 
-1.  **Webserver starten:**
-    ```bash
-    # Mit Node.js (falls verfügbar)
-    npx http-server . -p 8080
+## 🚀 Installation & Ausführung
 
-    # Mit Python 3
-    python -m http.server 8080
+### Lokale Entwicklung
 
-    # Oder verwenden Sie den integrierten Server Ihrer IDE (z.B. VS Code Live Server)
-    ```
+1. Repository klonen:
+   ```bash
+   git clone https://github.com/lumsen/PRIM_Funkloch.git
+   cd PRIM_Funkloch
+   ```
 
-2.  **Anwendung öffnen:**
-    Navigieren Sie zu: `http://localhost:8080`
+2. Lokalen Webserver starten:
+   ```bash
+   # Mit Python (empfohlen)
+   python -m http.server 8000
 
-3.  **GitHub Pages Deployment:**
-    Das Projekt ist **sofort GitHub Pages ready** mit relativen Pfaden und optimiertem Asset-Loading.
+   # Oder mit Node.js
+   npx http-server . -p 8000
+   ```
 
-## File Structure
+3. Anwendung im Browser öffnen: [http://localhost:8000](http://localhost:8000)
 
-*   `index.html`: The main HTML file.
-*   `src/css/style.css`: Stylesheets for the application.
-*   `src/js/`: Contains all JavaScript logic.
-    *   `data/`: Stores application data (graph, squads, missions).
-    *   `event-listeners/`: Handles user interactions.
-    *   `logic/`: Core mission planning logic.
-    *   `ui/`: UI components for rendering tables, graphs, etc.
-    *   `utils/`: Utility functions.
-*   `Spielanleitung.txt`: Game instructions.
-*   `eslint.config.js`: ESLint configuration.
-*   `.gitignore`: Specifies intentionally untracked files that Git should ignore.
-*   `LICENSE`: Project license information.
-*   `package.json` / `package-lock.json`: Node.js package management files.
+### GitHub Pages Deployment
 
-## Automatic Deployment to GitHub Pages
+Das Projekt kann automatisch auf GitHub Pages deployed werden:
 
-This project can be automatically deployed to GitHub Pages. Follow these steps:
+1. Repository-Einstellungen öffnen
+2. Unter **Pages** den Branch `main` und Ordner `/root` auswählen
+3. Änderungen committen und pushen - Deployment erfolgt automatisch
 
-1.  **Enable GitHub Pages:**
-    *   Navigate to your repository's **Settings** on GitHub.
-    *   In the left sidebar, click on **Pages**.
-    *   Under the "Source" section, select the branch you want to deploy from. For this project, it is recommended to use the `main` branch.
-    *   Choose the root folder (`/`) as the source.
-    *   Click **Save**.
+## 🛠️ Technologien
 
-2.  **Commit and Push Changes:**
-    *   Ensure all your latest changes are committed to your local repository.
-    *   Push your changes to the `main` branch:
-        ```bash
-        git add .
-        git commit -m "Add README and deployment instructions"
-        git push origin main
-        ```
-    *   After pushing, GitHub Pages will automatically build and deploy your site. It may take a few minutes for the deployment to become active.
+- **HTML5** & **CSS3** für Struktur und Styling
+- **JavaScript ES Modules** für modulare Architektur
+- **D3.js** für Graph-Vizualisierungen
+- **Google Maps Embed API** für Kartenintegration
 
-3.  **Access Your Deployed Site:**
-    *   Your site will be available at the URL: `https://lumsen.github.io/PRIM_Funkloch/`
-    *   Der Link ist auch oben in der Live Demo Sektion verlinkt.
+## 📁 Projektstruktur
 
-## 🔧 GitHub Pages Optimierungen
+```
+PRIM_Funkloch/
+├── index.html                 # Hauptdatei
+├── src/
+│   ├── css/style.css          # Stylesheets
+│   └── js/
+│       ├── script.js          # Hauptskript
+│       ├── classes/           # Klassen (Trupp, Einsatz)
+│       ├── data/              # Daten-Strukturen
+│       ├── event-listeners/   # Event-Handler
+│       ├── logic/             # Planungslogik
+│       ├── ui/                # UI-Komponenten
+│       └── utils/             # Hilfsfunktionen
+└── README.md                  # Diese Datei
+```
 
-Dieses Projekt wurde speziell für GitHub Pages optimiert:
+## 📄 Spielregeln
 
-### ✅ Bereits umgesetzt:
-- **Relative Pfade** statt absoluter Pfade für alle Ressourcen
-- **Kein Base Path** erforderlich (spitzt auf Root-Ebene)
-- **Modulare JavaScript Architektur** mit ES6 Modulen
-- **CORS-freundliche** Ressourcen-Struktur
-- **LocalStorage** für Daten-Persistenz
-- **Error Boundaries** mit userfreundlichen Meldungen
-- **Performance Optimierungen** mit Debouncing und Memoization
+Siehe `Spielanleitung.txt` für detaillierte Spielregeln und Anweisungen.
 
-### 🚀 Bereit für Deploy:
-1. Aktivieren Sie **GitHub Pages** in den Repository-Einstellungen
-2. Wählen Sie den `main` Branch und Root-Folder als Quelle
-3. Das Projekt wird **automatisch deployed** und ist sofort verfügbar
+## 📄 License
 
-### Entwicklungshinweise:
-- **Alle Tests** erfolgreich in Standards-Browsern
-- **Keine externen Abhängigkeiten** außer D3.js (CDN)
-- **Kompatibel** mit GitHub Pages Security-Einschränkungen
-- **Fallback-Mechanismen** für fehlende Features
+Dieses Projekt ist unter der MIT-License lizenziert - siehe [LICENSE](LICENSE) für Details.
+
+## 🤝 Contributing
+
+Beiträge willkommen! Bitte erstelle ein Issue oder Pull Request für Verbesserungen.

@@ -9,6 +9,82 @@ const defaultChargingDurationMs = 2 * 60 * 60 * 1000; // 2 hours
 
 // Helper Functions
 
+// Validation Functions
+
+function validateTruppForRisk(trupp, riskLevel) {
+  console.log(`Validating trupp ${trupp.name} for risk ${riskLevel}`);
+
+  // Check strength requirement: Strength >= Risk * 2
+  if (trupp.staerke < riskLevel * 2) {
+    console.warn(`Trupp ${trupp.name} strength ${trupp.staerke} too low for risk ${riskLevel} (requires ${riskLevel * 2})`);
+    return false;
+  }
+
+  // Check equipment requirements
+  switch (riskLevel) {
+    case 4:
+      if (!['CombatMedic', 'Überwachung'].includes(trupp.ausruestung)) {
+        console.warn(`Trupp ${trupp.name} equipment '${trupp.ausruestung}' insufficient for risk ${riskLevel} (needs CombatMedic or Überwachung)`);
+        return false;
+      }
+      break;
+    case 5:
+      if (trupp.ausruestung !== 'Veteran') {
+        console.warn(`Trupp ${trupp.name} equipment '${trupp.ausruestung}' insufficient for risk ${riskLevel} (needs Veteran)`);
+        return false;
+      }
+      break;
+  }
+
+  console.log(`Trupp ${trupp.name} validated for risk ${riskLevel}`);
+  return true;
+}
+
+function validateTechnikTrupp(trupp) {
+  console.log(`Validating technik trupp ${trupp.name}`);
+
+  // Techniktrupps should have 'Batterie' equipment
+  if (trupp.ausruestung !== 'Batterie') {
+    console.warn(`Techniktrupp ${trupp.name} should have 'Batterie' equipment`);
+    return false;
+  }
+
+  if (trupp.staerke !== 3) {
+    console.warn(`Techniktrupp ${trupp.name} should have strength 3, has ${trupp.staerke}`);
+    return false;
+  }
+
+  if (trupp.reichweite !== 50) {
+    console.warn(`Techniktrupp ${trupp.name} should have range 50km, has ${trupp.reichweite}km`);
+    return false;
+  }
+
+  if (trupp.geschwindigkeit !== 10) {
+    console.warn(`Techniktrupp ${trupp.name} should have speed 10 km/h, has ${trupp.geschwindigkeit} km/h`);
+    return false;
+  }
+
+  console.log(`Techniktrupp ${trupp.name} validated`);
+  return true;
+}
+
+function findValidTruppForRisk(availableTrupps, riskLevel, preferTechnik = false) {
+  console.log(`Finding valid trupp for risk ${riskLevel}, prefer teknik: ${preferTechnik}`);
+
+  let candidates = availableTrupps.filter(t => validateTruppForRisk(t, riskLevel) && t.naechsteVerfuegbarkeit <= new Date());
+
+  if (preferTechnik) {
+    candidates = candidates.filter(t => validateTechnikTrupp(t));
+  }
+
+  if (candidates.length === 0) {
+    console.warn(`No valid trupp found for risk ${riskLevel}`);
+    return null;
+  }
+
+  // Return the strongest candidate (preferred for higher risks)
+  return candidates.sort((a, b) => b.staerke - a.staerke)[0];
+}
 
 
 class PriorityQueue {
@@ -137,6 +213,14 @@ function addMovementMissionsForPath(movingTrupps, pathSegments, currentStartTime
     const segmentStartLabel = segment.source;
     const segmentEndLabel = segment.target;
     const segmentDistance = parseInt(segment.edge.label.replace('km', ''));
+    const segmentRisk = segment.edge.risk || 1;
+
+    // Validate all trupps for this segment risk
+    for (const trupp of movingTrupps) {
+      if (!validateTruppForRisk(trupp, segmentRisk)) {
+        throw new Error(`CRITICAL ERROR: Trupp ${trupp.name} cannot move through segment with risk ${segmentRisk}. Mission aborted.`);
+      }
+    }
 
     let segmentTravelTimeMs;
     if (combinedSpeedKmPerMs === 0) {
@@ -161,7 +245,7 @@ function addMovementMissionsForPath(movingTrupps, pathSegments, currentStartTime
       });
       trupp.aktuellerEinsatzpunkt = segmentEndLabel;
     });
-    
+
     travelTimeAccumulatedMs += segmentTravelTimeMs;
   }
   return {
@@ -173,8 +257,8 @@ function addMovementMissionsForPath(movingTrupps, pathSegments, currentStartTime
 
 function handleBatterySupplyMission(technikTrupp, workingTrupps, currentTime, missions, einsatzId, chargingStations, chargingDurationMs) {
   const supplyTrupp = workingTrupps.find(t =>
-    t.ausruestung !== 'Batterie' && 
-    t.naechsteVerfuegbarkeit <= currentTime && 
+    t.ausruestung !== 'Batterie' &&
+    t.naechsteVerfuegbarkeit <= currentTime &&
     t.geschwindigkeit > 0
   );
 
@@ -208,7 +292,7 @@ function handleBatterySupplyMission(technikTrupp, workingTrupps, currentTime, mi
   // Find and move to charging station
   let closestStation = null;
   let minDistance = Infinity;
-    
+
   for (const station of chargingStations) {
     const result = getShortestPathDistance(supplyTrupp.aktuellerEinsatzpunkt, station);
     if (result.distance !== Infinity && result.distance < minDistance) {
@@ -314,12 +398,16 @@ function generateCommunicationBridgePlan(startNodeLabel, endNodeLabel, startTime
 
   const allExistingTrupps = getTruppsData();
 
-  // Filter Techniktrupps to enforce the limit of 5
+  // Filter Techniktrupps to enforce the limit of 5 and validate them
   const maxAllowedTechnikTrupps = 5;
-  let filteredTechnikTrupps = allExistingTrupps.filter(t => t.ausruestung === 'Batterie');
+  let filteredTechnikTrupps = allExistingTrupps.filter(t => t.ausruestung === 'Batterie').filter(t => validateTechnikTrupp(t));
   if (filteredTechnikTrupps.length > maxAllowedTechnikTrupps) {
-    console.warn(`Warning: More than ${maxAllowedTechnikTrupps} Techniktrupps exist. Using only the first ${maxAllowedTechnikTrupps}.`);
+    console.warn(`Warning: More than ${maxAllowedTechnikTrupps} valid Techniktrupps exist. Using only the first ${maxAllowedTechnikTrupps}.`);
     filteredTechnikTrupps = filteredTechnikTrupps.slice(0, maxAllowedTechnikTrupps);
+  }
+  if (filteredTechnikTrupps.length === 0) {
+    console.error('CRITICAL ERROR: No valid Techniktrupps found!');
+    return { missions: [], bridgeSegments: [] };
   }
 
   // Filter regular troops to enforce the limit of 12
@@ -358,48 +446,54 @@ function generateCommunicationBridgePlan(startNodeLabel, endNodeLabel, startTime
     segmentStates.set(segmentKey, { trupp: null, endTime: null, covered: false });
   }
 
-  // Deploy technik trupps to segments
+  // Deploy technik trupps to segments with validation
   let deploymentTime = new Date(startDate);
   for (let i = 0; i < Math.min(filteredTechnikTrupps.length, numSegments); i++) {
     const segment = pathWithEdges[i];
     const segmentKey = `${segment.source}-${segment.target}`;
+    const segmentRisk = segment.edge.risk || 1;
     if (!segmentStates.get(segmentKey).covered) {
-      const trupp = workingTrupps.find(t => t.ausruestung === 'Batterie' && t.naechsteVerfuegbarkeit <= deploymentTime);
-      if (trupp) {
+      // Find available technik trupp with valid strength and availability
+      const availableTrupps = workingTrupps.filter(t => t.ausruestung === 'Batterie' && t.naechsteVerfuegbarkeit <= deploymentTime);
+      const validTrupp = findValidTruppForRisk(availableTrupps, segmentRisk, true);
+
+      if (validTrupp) {
         // Move trupp to the segment start if not already there
-        if (trupp.aktuellerEinsatzpunkt !== segment.source) {
-          const pathToSegment = findPath(trupp.aktuellerEinsatzpunkt, segment.source);
+        if (validTrupp.aktuellerEinsatzpunkt !== segment.source) {
+          const pathToSegment = findPath(validTrupp.aktuellerEinsatzpunkt, segment.source);
           if (pathToSegment && pathToSegment.length > 0) {
-            const result = addMovementMissionsForPath([trupp], pathToSegment, deploymentTime, 'zum Einsatzpunkt', plannedMissions, currentEinsatzId);
+            const result = addMovementMissionsForPath([validTrupp], pathToSegment, deploymentTime, 'zum Einsatzpunkt', plannedMissions, currentEinsatzId);
             plannedMissions = result.missions;
             currentEinsatzId = result.currentEinsatzId;
             deploymentTime = result.finalTime;
-            trupp.naechsteVerfuegbarkeit = deploymentTime;
+            validTrupp.naechsteVerfuegbarkeit = deploymentTime;
           }
         }
         // Assign to segment
-        segmentStates.get(segmentKey).trupp = trupp;
+        segmentStates.get(segmentKey).trupp = validTrupp;
         segmentStates.get(segmentKey).endTime = endDate;
         segmentStates.get(segmentKey).covered = true;
         bridgeSegments.push({
           source: segment.source,
           target: segment.target,
-          truppname: trupp.name,
+          truppname: validTrupp.name,
           startzeit: deploymentTime.toISOString().slice(0, 16),
           endzeit: endDate.toISOString().slice(0, 16),
           type: 'Relay'
         });
         plannedMissions.push({
           id: currentEinsatzId++,
-          truppname: trupp.name,
+          truppname: validTrupp.name,
           startzeit: deploymentTime.toISOString().slice(0, 16),
           startort: segment.source,
           endort: segment.target,
           endzeit: endDate.toISOString().slice(0, 16),
           type: 'Relay',
-          description: `${trupp.name} betreibt Relais von ${segment.source} nach ${segment.target}.`
+          description: `${validTrupp.name} betreibt Relais von ${segment.source} nach ${segment.target}.`
         });
-        trupp.naechsteVerfuegbarkeit = endDate;
+        validTrupp.naechsteVerfuegbarkeit = endDate;
+      } else {
+        console.error(`CRITICAL ERROR: No valid Techniktrupp found for segment with risk ${segmentRisk}`);
       }
     }
   }
