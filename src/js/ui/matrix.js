@@ -1,6 +1,5 @@
-import { getRiskClass } from '../utils/helpers.js';
+import { getRiskClass, saveData, redrawEverything } from '../utils/helpers.js';
 import { graphData } from '../data/graphData.js';
-import { saveData, redrawEverything } from '../utils/helpers.js';
 
 export function initializeTable(nodes, links, nodeLabelToIndex) {
   console.log('initializeTable called.');
