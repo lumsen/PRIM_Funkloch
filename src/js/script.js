@@ -18,6 +18,18 @@ document.addEventListener('DOMContentLoaded', () => {
     setEinsaetzeData(missions); // Set the generated missions to appData
   }
 
+  // Dark Mode Toggle
+  const darkModeToggle = document.getElementById('dark-mode-toggle');
+  const darkModeState = localStorage.getItem('darkMode') === 'true';
+  if (darkModeState) {
+    document.body.classList.add('dark-mode');
+    darkModeToggle.checked = true;
+  }
+  darkModeToggle.addEventListener('change', (e) => {
+    document.body.classList.toggle('dark-mode', e.target.checked);
+    localStorage.setItem('darkMode', e.target.checked);
+  });
+
   initializeGraph(); // Initialize graph first
 
   // Setup timeline controls

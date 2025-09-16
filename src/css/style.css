@@ -1,18 +1,44 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
 :root {
-    --primary-color: #007bff;
-    --primary-color-hover: #0056b3;
+    --text: rgb(6, 30, 30);
+    --background: rgb(247, 253, 253);
+    --primary: rgb(52, 208, 213);
+    --secondary: rgb(127, 167, 230);
+    --accent: rgb(86, 113, 220);
+    --primary-color: var(--primary);
+    --primary-color-hover: rgba(42, 198, 203, 0.8);
     --danger-color: #dc3545;
     --danger-color-hover: #c82333;
-    --light-gray: #f8f9fa;
+    --light-gray: var(--background);
     --medium-gray: #e9ecef;
     --dark-gray: #343a40;
-    --text-color: #212529;
+    --text-color: var(--text);
     --white: #fff;
     --border-color: #dee2e6;
     --shadow-color: rgba(0, 0, 0, 0.08);
-    --highlight-color: rgba(0, 123, 255, 0.5);
+    --highlight-color: var(--accent);
+}
+
+/* Dark Mode Variables */
+body.dark-mode {
+    --text: rgb(225, 249, 249);
+    --background: rgb(2, 8, 8);
+    --primary: rgb(42, 198, 203);
+    --secondary: rgb(25, 65, 128);
+    --accent: rgb(35, 62, 169);
+    --primary-color: var(--primary);
+    --primary-color-hover: rgba(42, 198, 203, 0.8);
+    --danger-color: #e74c3c;
+    --danger-color-hover: #c0392b;
+    --light-gray: var(--background);
+    --medium-gray: #2d2d2d;
+    --dark-gray: #f8f9fa;
+    --text-color: var(--text);
+    --white: var(--background);
+    --border-color: #3a3a3a;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    --highlight-color: rgba(35, 62, 169, 0.3);
 }
 
 body {
@@ -32,8 +58,20 @@ body {
     background-color: var(--dark-gray);
     color: var(--white);
     padding: 20px;
-    text-align: center;
     margin-bottom: 30px;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.main-header h1 {
+    margin: 0;
+    font-size: 2.5rem;
 }
 
 .main-header h1 {
@@ -149,6 +187,10 @@ h2 {
     text-anchor: middle;
 }
 
+body.dark-mode .link-label {
+    fill: var(--text-color);
+}
+
 .link-label.faded {
     opacity: 0;
 }
@@ -163,6 +205,11 @@ h2 {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     font-size: 12px;
     z-index: 10;
+}
+
+body.dark-mode #legend {
+    background-color: rgba(0, 0, 0, 0.8);
+    color: var(--text-color);
 }
 
 #legend h4 {
@@ -390,6 +437,56 @@ td.diagonal {
 
 .highlight {
     stroke-width: 4px;
+}
+
+/* Dark Mode Toggle Switch */
+.dark-mode-switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+    cursor: pointer;
+}
+
+.dark-mode-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: var(--primary-color);
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px var(--primary-color);
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
 }
 
 /* Table Highlighting */
