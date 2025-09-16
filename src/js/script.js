@@ -10,9 +10,9 @@ import { generateMissionPlan } from './logic/missionPlanner.js';
 document.addEventListener('DOMContentLoaded', () => {
   console.log('DOMContentLoaded fired.');
   loadData();
-  console.log('graphData.edges after loadData:', graphData.edges);
-  console.log('truppsData after loadData:', getTruppsData());
-  console.log('einsaetzeData after loadData:', getEinsaetzeData());
+  // console.log('graphData.edges after loadData:', graphData.edges);
+  // console.log('truppsData after loadData:', getTruppsData());
+  // console.log('einsaetzeData after loadData:', getEinsaetzeData());
 
   // Generate initial mission plan if einsaetzeData is empty
   if (getEinsaetzeData().length === 0) {
@@ -65,6 +65,6 @@ document.addEventListener('DOMContentLoaded', () => {
   renderEinsaetzeTable();
   initializeEventListeners(); // Call event listeners after initial rendering
 
-  console.log("--- Mission Plan Solution ---");
+  console.log('--- Mission Plan Solution ---');
   console.table(getEinsaetzeData());
 });
