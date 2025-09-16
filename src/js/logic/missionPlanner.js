@@ -1,5 +1,5 @@
 import { graphData } from '../data/graphData.js';
-import { getTruppsData, addTrupp } from '../data/appData.js';
+import { getTruppsData } from '../data/appData.js';
 
 // Constants and caches
 const shortestPathDistanceCache = new Map();
@@ -8,18 +8,8 @@ const defaultChargingStations = ['Wannsee', 'Bahnitz'];
 const defaultChargingDurationMs = 2 * 60 * 60 * 1000; // 2 hours
 
 // Helper Functions
-function formatCounter() {
-  return String(Math.floor(Math.random() * 100)).padStart(2, '0');
-}
 
-function findAccompanyingTrupp(batteryTrupp, workingTrupps, currentTime) {
-  return workingTrupps.find(t =>
-    t.ausruestung !== 'Batterie' &&
-    t.geschwindigkeit > 0 &&
-    t.naechsteVerfuegbarkeit <= currentTime &&
-    t.aktuellerEinsatzpunkt === batteryTrupp.aktuellerEinsatzpunkt
-  );
-}
+
 
 class PriorityQueue {
   constructor() {
@@ -294,147 +284,11 @@ function handleBatterySupplyMission(technikTrupp, workingTrupps, currentTime, mi
   };
 }
 
-function findSuitableTrupps(segment, currentTime, workingTrupps, distance, risk) {
-  const candidateTrupps = [];
 
-  for (const trupp of workingTrupps) {
-    if (trupp.naechsteVerfuegbarkeit > currentTime) continue;
 
-    let potentialTravelTimeMs = 0;
-    if (trupp.aktuellerEinsatzpunkt !== segment.source) {
-      const travelInfo = getShortestPathDistance(trupp.aktuellerEinsatzpunkt, segment.source);
-      if (travelInfo.distance === Infinity) continue;
-      const speedKmPerMs = trupp.geschwindigkeit / (60 * 60 * 1000);
-      potentialTravelTimeMs = travelInfo.distance / speedKmPerMs;
-    }
 
-    const potentialStartTime = new Date(Math.max(
-      currentTime.getTime(),
-      trupp.naechsteVerfuegbarkeit.getTime() + potentialTravelTimeMs
-    ));
 
-    if (trupp.geschwindigkeit > 0 && trupp.reichweite >= distance) {
-      const minStaerke = risk * 2;
-      const strengthMet = trupp.staerke >= minStaerke;
 
-      let equipmentMet = false;
-      if (risk < 4) {
-        equipmentMet = true; // No special equipment needed for risk < 4
-      } else if (risk >= 4) { // For risk 4 and 5, special equipment is needed
-        equipmentMet = trupp.ausruestung === 'CombatMedic' || trupp.ausruestung === 'Überwachung' || trupp.ausruestung === 'Veteran';
-      }
-
-      // Apply the OR condition: strength OR equipment
-      if (strengthMet || equipmentMet) {
-        candidateTrupps.push({ trupp, potentialStartTime });
-      }
-    }
-  }
-
-  candidateTrupps.sort((a, b) => a.potentialStartTime.getTime() - b.potentialStartTime.getTime());
-  return candidateTrupps;
-}
-
-function generateNewTrupp(location, startTime, specs) {
-  const isBatteryTrupp = specs.type === 'Batterie';
-
-  const einsatzdauer = 1 + Math.floor(Math.random() * 5);
-  const ruhezeit = isBatteryTrupp ? 0 : (einsatzdauer <= 2 ? 1 + Math.floor(Math.random() * 3) : 3 + Math.floor(Math.random() * 3));
-
-  let staerke;
-  if (isBatteryTrupp) {
-    staerke = 3; // Techniktrupps have a fixed strength of 3
-  } else {
-    const minStaerke = 4;
-    const maxStaerke = 10;
-    staerke = minStaerke + Math.floor(Math.random() * (maxStaerke - minStaerke + 1));
-  }
-  
-  const reichweite = isBatteryTrupp ? 50 : 25;
-
-  const prefixes = ['WD-', 'BER-', 'BAST-'];
-  const prefix = isBatteryTrupp ? 'BeROp-' : prefixes[Math.floor(Math.random() * prefixes.length)];
-  const truppName = `${prefix}${formatCounter()}`;
-
-  return {
-    id: `gen-Trupp-${Math.floor(Math.random() * 100000)}`,
-    name: truppName,
-    staerke: staerke,
-    einsatzdauer: einsatzdauer,
-    reichweite: reichweite,
-    geschwindigkeit: isBatteryTrupp ? 10 : (4 + Math.floor(Math.random() * 5)),
-    ruhezeit: ruhezeit,
-    ausruestung: specs.type,
-    aktuellerEinsatzpunkt: location,
-    naechsteVerfuegbarkeit: new Date(startTime),
-    einsatzzeitMax: isBatteryTrupp ? 8 : 0,
-    verbleibendeBatteriezeit: isBatteryTrupp ? 8 : 0,
-    benoetigtBatterie: false
-  };
-}
-
-function createRelayMission(relayTrupps, segment, startTime, missions, einsatzId) {
-  const mainTrupp = relayTrupps.find(t => t.ausruestung === 'Batterie') || relayTrupps[0];
-  const truppNames = relayTrupps.map(t => t.name).join(', ');
-
-  const truupsNeedingMovement = relayTrupps.filter(t => t.aktuellerEinsatzpunkt !== segment.source);
-  if (truupsNeedingMovement.length > 0) {
-    const fastestMovingTrupp = truupsNeedingMovement.reduce((prev, current) => (prev.geschwindigkeit > current.geschwindigkeit ? prev : current));
-    const pathToStart = findPath(fastestMovingTrupp.aktuellerEinsatzpunkt, segment.source);
-    if (!pathToStart || pathToStart.length === 0) {
-      return { success: false };
-    }
-
-    const result = addMovementMissionsForPath(
-      truupsNeedingMovement,
-      pathToStart,
-      startTime,
-      'zum Relaispunkt',
-      missions,
-      einsatzId
-    );
-
-    missions = result.missions;
-    einsatzId = result.currentEinsatzId;
-    startTime = result.finalTime;
-  }
-
-  const duration = (mainTrupp.einsatzdauer || 1) * 60 * 60 * 1000;
-  const endTime = new Date(startTime.getTime() + duration);
-
-  missions.push({
-    id: einsatzId++,
-    truppname: truppNames,
-    startzeit: startTime.toISOString().slice(0, 16),
-    startort: segment.source,
-    endort: segment.target,
-    endzeit: endTime.toISOString().slice(0, 16),
-    type: 'Relay',
-    description: `${mainTrupp.ausruestung === 'Batterie' ? 'Techniktrupp ' : ''}${truppNames} stellen eine Relais-Verbindung zwischen ${segment.source} und ${segment.target} her.`
-  });
-
-  relayTrupps.forEach(trupp => {
-    if (trupp.ausruestung === 'Batterie') {
-      trupp.verbleibendeBatteriezeit -= (mainTrupp.einsatzdauer || 1);
-      if (trupp.verbleibendeBatteriezeit <= 0) {
-        trupp.benoetigtBatterie = true;
-        trupp.naechsteVerfuegbarkeit = new Date(endTime.getTime() + (1 * 60 * 60 * 1000));
-      } else {
-        trupp.naechsteVerfuegbarkeit = endTime;
-      }
-    }
-    else {
-      trupp.naechsteVerfuegbarkeit = new Date(endTime.getTime() + (trupp.ruhezeit * 60 * 60 * 1000));
-    }
-    trupp.aktuellerEinsatzpunkt = segment.target;
-  });
-
-  return {
-    success: true,
-    currentEinsatzId: einsatzId,
-    endTime: endTime
-  };
-}
 
 function generateCommunicationBridgePlan(startNodeLabel, endNodeLabel, startTimeStr, endTimeStr, chargingStations = defaultChargingStations, chargingDurationMs = defaultChargingDurationMs) {
   console.log(`Generating communication bridge plan from ${startNodeLabel} to ${endNodeLabel} between ${startTimeStr} and ${endTimeStr}`);
@@ -456,12 +310,7 @@ function generateCommunicationBridgePlan(startNodeLabel, endNodeLabel, startTime
   const endDate = new Date(endTimeStr);
   let currentTime = new Date(startDate);
 
-  const maxRisk = Math.max(...pathWithEdges.map(segment => segment.edge.risk || 0));
-  const numSegments = pathWithEdges.length;
-
-  const minTechnikTrupps = Math.ceil(numSegments / 3);
-  // const minMobileTrupps = Math.ceil(numSegments / 2) + minTechnikTrupps; // Removed as troop generation is removed
-  const minSupplyTrupps = Math.ceil(minTechnikTrupps / 4);
+  // numSegments not used in current logic
 
   const allExistingTrupps = getTruppsData();
   
@@ -480,6 +329,9 @@ function generateCommunicationBridgePlan(startNodeLabel, endNodeLabel, startTime
     console.warn(`Warning: More than ${maxAllowedMobileTrupps} regular troops exist. Using only the first ${maxAllowedMobileTrupps}.`);
     filteredMobileTrupps = filteredMobileTrupps.slice(0, maxAllowedMobileTrupps);
   }
+
+  // Calculate minTechnikTrupps but not used in current logic
+  // const minTechnikTrupps = Math.ceil(numSegments / 3);
 
   // Removed troop generation logic as per feedback.
   // The planner must now rely solely on existing troops.
@@ -513,18 +365,14 @@ function generateCommunicationBridgePlan(startNodeLabel, endNodeLabel, startTime
     let nextEventTime = endDate.getTime();
     let activityThisIteration = false;
 
-    const segmentsToCover = pathWithEdges.filter(segment => {
-      const segmentKey = `${segment.source}-${segment.target}`;
-      const state = segmentStates.get(segmentKey);
-      return !state.covered || state.endTime <= currentTime;
-    });
+    // Segments to cover but not used in current logic
+    // const segmentsToCover = pathWithEdges.filter(segment => {
+    //   const segmentKey = `${segment.source}-${segment.target}`;
+    //   const state = segmentStates.get(segmentKey);
+    //   return !state.covered || state.endTime <= currentTime;
+    // });
 
-    for (const segment of segmentsToCover) {
-      const segmentKey = `${segment.source}-${segment.target}`;
-      const distance = parseInt(segment.edge.label.replace('km', ''));
-      const risk = segment.edge.risk;
-
-
+    // Loop through segments but no action required in current logic
 
     const technikTruppsNeedingSupply = workingTrupps.filter(t =>
       t.ausruestung === 'Batterie' &&
@@ -582,5 +430,4 @@ function generateMissionPlan() {
   const endTime = '2025-08-26T22:00';
   return generateCommunicationBridgePlan(startNode, endNode, startTime, endTime, defaultChargingStations, defaultChargingDurationMs);
 }
-
 export { generateMissionPlan, generateCommunicationBridgePlan, findPath };

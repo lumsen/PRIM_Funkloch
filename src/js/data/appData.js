@@ -1,4 +1,6 @@
 import { graphData } from './graphData.js';
+import Trupp from '../classes/trupp.js';
+import Einsatz from '../classes/einsatz.js';
 
 function formatCounter() {
   return String(Math.floor(Math.random() * 100)).padStart(2, '0');
@@ -24,7 +26,7 @@ export function generateTrupps() {
 
   // Generiert Techniktrupps (BeROp-Trupps)
   for (let i = 0; i < numTechniktrupps; i++) {
-    const newTrupp = {
+    generatedTrupps.push(new Trupp({
       id: Math.floor(Math.random() * 100000), // Eindeutige ID des Trupps
       name: `BeROp-${formatCounter()}`, // Name des Techniktrupps (BeROp-[XX])
       staerke: 3, // Stärke des Trupps (festgelegt für Techniktrupps)
@@ -37,8 +39,7 @@ export function generateTrupps() {
       benoetigtBatterie: false, // Flag, ob der Trupp eine Batterieladung benötigt
       aktuellerEinsatzpunkt: techniktruppLocations[i] || graphData.nodes[Math.floor(Math.random() * graphData.nodes.length)].label, // Aktueller Standort des Trupps
       naechsteVerfuegbarkeit: new Date('2025-08-26T04:00'), // Zeitpunkt, ab dem der Trupp wieder verfügbar ist
-    };
-    generatedTrupps.push(newTrupp);
+    }));
   }
 
   // Generiert reguläre Trupps (WD-, BER-, BAST-Trupps)
@@ -57,7 +58,7 @@ export function generateTrupps() {
     const prefixes = ['WD-', 'BER-', 'BAST-'];
     const truppNamePrefix = prefixes[Math.floor(Math.random() * prefixes.length)]; // Zufälliges Präfix für den Truppnamen
 
-    const newTrupp = {
+    generatedTrupps.push(new Trupp({
       id: Math.floor(Math.random() * 100000), // Eindeutige ID des Trupps
       name: `${truppNamePrefix}${formatCounter()}`, // Name des Trupps (WD/BER/BAST-[XX])
       staerke: 4 + Math.floor(Math.random() * 7), // Stärke des Trupps (zwischen 4 und 10)
@@ -68,8 +69,7 @@ export function generateTrupps() {
       ausruestung: ausruestung, // Spezielle Ausrüstung (z.B. 'CombatMedic', 'Überwachung', 'Veteran')
       aktuellerEinsatzpunkt: graphData.nodes[Math.floor(Math.random() * graphData.nodes.length)].label, // Aktueller Standort des Trupps
       naechsteVerfuegbarkeit: new Date('2025-08-26T04:00'), // Zeitpunkt, ab dem der Trupp wieder verfügbar ist
-    };
-    generatedTrupps.push(newTrupp);
+    }));
   }
 
   return generatedTrupps;
@@ -135,13 +135,13 @@ export function getBridgeSegments() {
 }
 
 export function setEinsaetzeData(newEinsaetze, newBridgeSegments = []) {
-  _einsaetzeData = newEinsaetze;
+  _einsaetzeData = newEinsaetze.map(einsatz => einsatz instanceof Einsatz ? einsatz : new Einsatz(einsatz));
   _bridgeSegments = newBridgeSegments;
   _nextEinsatzId = _einsaetzeData.length > 0 ? Math.max(..._einsaetzeData.map(e => e.id)) + 1 : 1;
 }
 
 export function setTruppsData(newTrupps) {
-  _truppsData = newTrupps;
+  _truppsData = newTrupps.map(trupp => trupp instanceof Trupp ? trupp : new Trupp(trupp));
   _nextTruppId = _truppsData.length > 0 ? Math.max(..._truppsData.map(t => t.id)) + 1 : 1;
 }
 

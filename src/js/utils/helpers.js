@@ -1,9 +1,6 @@
 import { LOCAL_STORAGE_KEY_GRAPH, LOCAL_STORAGE_KEY_TRUPPS, LOCAL_STORAGE_KEY_EINSAETZE } from '../constants.js';
 import { graphData } from '../data/graphData.js';
 import { getTruppsData, setTruppsData, getEinsaetzeData, setEinsaetzeData, generateTrupps } from '../data/appData.js';
-import { initializeGraph } from '../ui/graph.js';
-import { renderTruppsTable } from '../ui/trupps.js';
-import { renderEinsaetzeTable } from '../ui/einsaetze.js';
 
 export function getRiskClass(risk) { return `cell-${risk}`;}
 export function getLinkClass(risk) { return `link link-${risk}`;}
@@ -12,8 +9,10 @@ export function saveData() {
   console.log('Saving data...');
   try {
     localStorage.setItem(LOCAL_STORAGE_KEY_GRAPH, JSON.stringify(graphData.edges));
-    localStorage.setItem(LOCAL_STORAGE_KEY_TRUPPS, JSON.stringify(getTruppsData()));
-    localStorage.setItem(LOCAL_STORAGE_KEY_EINSAETZE, JSON.stringify(getEinsaetzeData()));
+    const truppsData = getTruppsData().map(trupp => trupp.toPlainObject ? trupp.toPlainObject() : trupp);
+    const einsaetzeData = getEinsaetzeData().map(einsatz => einsatz.toPlainObject ? einsatz.toPlainObject() : einsatz);
+    localStorage.setItem(LOCAL_STORAGE_KEY_TRUPPS, JSON.stringify(truppsData));
+    localStorage.setItem(LOCAL_STORAGE_KEY_EINSAETZE, JSON.stringify(einsaetzeData));
     console.log('Data saved successfully.');
   }
   catch (e) {
@@ -86,13 +85,7 @@ export function loadData() {
   }
 }
 
-export function redrawEverything() {
-  console.log('Redrawing everything...');
-  d3.select('#graph').selectAll('*' ).remove();
-  initializeGraph();
-  renderTruppsTable();
-  renderEinsaetzeTable();
-}
+
 
 export function formatDateTime(isoString) {
   if (!isoString) return '';

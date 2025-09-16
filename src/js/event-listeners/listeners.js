@@ -1,10 +1,13 @@
 import { LOCAL_STORAGE_KEY_GRAPH, LOCAL_STORAGE_KEY_TRUPPS, LOCAL_STORAGE_KEY_EINSAETZE } from '../constants.js';
 import { graphData } from '../data/graphData.js';
 import { getTruppsData, addTrupp, getEinsaetzeData, addEinsatz, resetAppData, setEinsaetzeData } from '../data/appData.js';
-import { redrawEverything, saveData } from '../utils/helpers.js';
+import { saveData } from '../utils/helpers.js';
+import { redrawEverything } from '../ui/redraw.js';
 import { renderTruppsTable } from '../ui/trupps.js';
 import { renderEinsaetzeTable } from '../ui/einsaetze.js';
 import { generateMissionPlan } from '../logic/missionPlanner.js';
+import Trupp from '../classes/trupp.js';
+import Einsatz from '../classes/einsatz.js';
 
 export function initializeEventListeners() {
   d3.select('#reset-button').on('click', () => {
@@ -33,19 +36,20 @@ export function initializeEventListeners() {
   d3.select('#add-trupp-form').on('submit', function(event) {
     event.preventDefault();
 
-    const newTrupp = {
+    const ausruestung = d3.select('#trupp-ausruestung').node().value;
+    const newTrupp = new Trupp({
       name: d3.select('#trupp-name').node().value,
       staerke: +d3.select('#trupp-staerke').node().value,
       reichweite: +d3.select('#trupp-reichweite').node().value,
       geschwindigkeit: +d3.select('#trupp-geschwindigkeit').node().value,
       ruhezeit: +d3.select('#trupp-ruhezeit').node().value,
-      ausruestung: d3.select('#trupp-ausruestung').node().value,
+      ausruestung: ausruestung,
       aktuellerEinsatzpunkt: graphData.nodes[Math.floor(Math.random() * graphData.nodes.length)].label, // Random starting node
       naechsteVerfuegbarkeit: new Date(), // Available now
-      einsatzzeitMax: (d3.select('#trupp-ausruestung').node().value === 'Technik' ? 8 : 0),
-      verbleibendeBatteriezeit: (d3.select('#trupp-ausruestung').node().value === 'Technik' ? 8 : 0),
+      einsatzzeitMax: (ausruestung === 'Technik' ? 8 : 0),
+      verbleibendeBatteriezeit: (ausruestung === 'Technik' ? 8 : 0),
       benoetigtBatterie: false,
-    };
+    });
 
     addTrupp(newTrupp);
     renderTruppsTable();
@@ -57,14 +61,15 @@ export function initializeEventListeners() {
   d3.select('#add-einsatz-form').on('submit', function(event) {
     event.preventDefault();
 
-    const newEinsatz = {
+    const newEinsatz = new Einsatz({
       truppname: d3.select('#einsatz-truppname').node().value,
       startzeit: d3.select('#einsatz-startzeit').node().value,
       startort: d3.select('#einsatz-startort').node().value,
       endort: d3.select('#einsatz-endort').node().value,
       endzeit: d3.select('#einsatz-endzeit').node().value,
-      type: 'Manuell' // Default type for manually added einsaetze
-    };
+      type: 'Manuell', // Default type for manually added einsaetze
+      description: ''
+    });
 
     addEinsatz(newEinsatz);
     renderEinsaetzeTable();
