@@ -1,11 +1,16 @@
 const globals = require('globals');
 const eslint = require('@eslint/js');
+const babelParser = require('@babel/eslint-parser');
 
 module.exports = [
   {
     languageOptions: {
       ecmaVersion: 12,
       sourceType: 'module',
+      parser: babelParser,
+      parserOptions: {
+        requireConfigFile: false,
+      },
       globals: {
         ...globals.browser,
         ...globals.node,
