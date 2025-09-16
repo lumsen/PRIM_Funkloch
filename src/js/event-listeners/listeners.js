@@ -80,14 +80,14 @@ export function initializeEventListeners() {
 
   d3.select('#generate-einsaetze-button').on('click', () => {
     console.log('Generate Einsätze button clicked.');
-        
+
     // Clear existing einsaetze
     setEinsaetzeData([]);
-        
+
     // Call the new communication bridge planning function
     const newGeneratedEinsaetze = generateMissionPlan(); // generateMissionPlan already calls generateCommunicationBridgePlan
-    setEinsaetzeData(newGeneratedEinsaetze);
-        
+    setEinsaetzeData(newGeneratedEinsaetze.missions);
+
     console.log('einsaetzeData after update:', getEinsaetzeData());
     renderEinsaetzeTable();
     saveData(); // Save the newly generated einsaetze
