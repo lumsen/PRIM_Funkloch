@@ -20,40 +20,17 @@ PRIM Funkloch is a strategic planning tool designed for managing squads and miss
 
 ## Getting Started
 
-To run this project locally, you have two main options:
+To run this project locally, you can use a local web server. This is the recommended approach as it correctly handles module loading and other web-related functionalities.
 
-### Option 1: Open `index.html` Directly (Simple, but may have limitations)
+1.  **Start a local web server:**
+    *   If you have Node.js and npm installed, you can install a simple HTTP server globally (e.g., `npm install -g http-server`) and then run it from the project's root directory.
+    *   Alternatively, many code editors (like VS Code with extensions such as "Live Server") provide built-in options to serve static files.
+    *   Ensure your web server is configured to serve files from the project's root directory.
 
-1.  Navigate to the root directory of the project (`c:\Repo\PRIM_Funkloch`).
-2.  Open the `index.html` file directly in your web browser.
+2.  **Access the application:**
+    *   Open your web browser and navigate to the address provided by your local web server (e.g., `http://localhost:8080` or `http://127.0.0.1:5500`).
 
-*Note: This method might encounter issues with loading modules or certain browser security restrictions.*
-
-### Option 2: Use a Local Web Server (Recommended)
-
-Using a local web server is the recommended way to run this project, as it handles module loading and other web-related functionalities correctly.
-
-1.  **Install a local web server (if you don't have one):**
-    *   If you have Node.js and npm installed, you can install a simple HTTP server globally:
-        ```bash
-        npm install -g http-server
-        ```
-    *   Alternatively, many code editors (like VS Code with the "Live Server" extension) provide built-in options.
-
-2.  **Start the web server:**
-    *   Open your terminal or command prompt.
-    *   Navigate to the project's root directory:
-        ```bash
-        cd c:\Repo\PRIM_Funkloch
-        ```
-    *   Start the HTTP server. If you installed `http-server`, run:
-        ```bash
-        http-server
-        ```
-        (This will typically start a server on `http://localhost:8080` or a similar port.)
-
-3.  **Access the application:**
-    *   Open your web browser and go to the address provided by the web server (e.g., `http://localhost:8080`).
+*Note: Opening `index.html` directly in the browser might work for basic functionality but can lead to issues with module loading or browser security restrictions.*
 
 ## File Structure
 
