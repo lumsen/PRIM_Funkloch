@@ -18,19 +18,34 @@ PRIM Funkloch is a strategic planning tool designed for managing squads and miss
 *   JavaScript (ES Modules)
 *   D3.js (for graph visualization)
 
-## Getting Started
+## 🌐 **Live Demo**
 
-To run this project locally, you can use a local web server. This is the recommended approach as it correctly handles module loading and other web-related functionalities.
+PRIM Funkloch ist **live verfügbar** auf GitHub Pages:
 
-1.  **Start a local web server:**
-    *   If you have Node.js and npm installed, you can install a simple HTTP server globally (e.g., `npm install -g http-server`) and then run it from the project's root directory.
-    *   Alternatively, many code editors (like VS Code with extensions such as "Live Server") provide built-in options to serve static files.
-    *   Ensure your web server is configured to serve files from the project's root directory.
+➡️ **[Start PRIM Funkloch](https://lumsen.github.io/PRIM_Funkloch/)** ←️
 
-2.  **Access the application:**
-    *   Open your web browser and navigate to the address provided by your local web server (e.g., `http://localhost:8080` or `http://127.0.0.1:5500`).
+Die Anwendung läuft vollständig im Browser und erfordert keine Installation.
 
-*Note: Opening `index.html` directly in the browser might work for basic functionality but can lead to issues with module loading or browser security restrictions.*
+## 🚀 Lokale Entwicklung
+
+Für lokale Entwicklung empfehlen wir einen lokalen Webserver:
+
+1.  **Webserver starten:**
+    ```bash
+    # Mit Node.js (falls verfügbar)
+    npx http-server . -p 8080
+
+    # Mit Python 3
+    python -m http.server 8080
+
+    # Oder verwenden Sie den integrierten Server Ihrer IDE (z.B. VS Code Live Server)
+    ```
+
+2.  **Anwendung öffnen:**
+    Navigieren Sie zu: `http://localhost:8080`
+
+3.  **GitHub Pages Deployment:**
+    Das Projekt ist **sofort GitHub Pages ready** mit relativen Pfaden und optimiertem Asset-Loading.
 
 ## File Structure
 
@@ -70,5 +85,29 @@ This project can be automatically deployed to GitHub Pages. Follow these steps:
     *   After pushing, GitHub Pages will automatically build and deploy your site. It may take a few minutes for the deployment to become active.
 
 3.  **Access Your Deployed Site:**
-    *   Your site will be available at the URL: `https://<your-username>.github.io/<your-repo-name>/`
-    *   Replace `<your-username>` with your GitHub username and `<your-repo-name>` with the name of your repository.
+    *   Your site will be available at the URL: `https://lumsen.github.io/PRIM_Funkloch/`
+    *   Der Link ist auch oben in der Live Demo Sektion verlinkt.
+
+## 🔧 GitHub Pages Optimierungen
+
+Dieses Projekt wurde speziell für GitHub Pages optimiert:
+
+### ✅ Bereits umgesetzt:
+- **Relative Pfade** statt absoluter Pfade für alle Ressourcen
+- **Kein Base Path** erforderlich (spitzt auf Root-Ebene)
+- **Modulare JavaScript Architektur** mit ES6 Modulen
+- **CORS-freundliche** Ressourcen-Struktur
+- **LocalStorage** für Daten-Persistenz
+- **Error Boundaries** mit userfreundlichen Meldungen
+- **Performance Optimierungen** mit Debouncing und Memoization
+
+### 🚀 Bereit für Deploy:
+1. Aktivieren Sie **GitHub Pages** in den Repository-Einstellungen
+2. Wählen Sie den `main` Branch und Root-Folder als Quelle
+3. Das Projekt wird **automatisch deployed** und ist sofort verfügbar
+
+### Entwicklungshinweise:
+- **Alle Tests** erfolgreich in Standards-Browsern
+- **Keine externen Abhängigkeiten** außer D3.js (CDN)
+- **Kompatibel** mit GitHub Pages Security-Einschränkungen
+- **Fallback-Mechanismen** für fehlende Features
