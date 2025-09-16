@@ -8,7 +8,7 @@ export function generateTrupps() {
   let generatedTrupps = [];
 
   const numTechniktrupps = 5; // 5 fixed Techniktrupps
-  const numRegularTrupps = 5; // Start with a smaller number to encourage minimal generation
+  const numRegularTrupps = 12;
 
   // Identify nodes with connections > 25km
   const longDistanceNodes = new Set();
@@ -29,7 +29,7 @@ export function generateTrupps() {
       name: `BeROp-${formatCounter()}`, // Name des Techniktrupps (BeROp-[XX])
       staerke: 3, // Stärke des Trupps (festgelegt für Techniktrupps)
       reichweite: 50, // Maximale Reichweite für Relais-Einsätze in km
-      geschwindigkeit: 0, // Bewegungsgeschwindigkeit in km/h (statische Truppen)
+      geschwindigkeit: 10, // Bewegungsgeschwindigkeit in km/h (Techniktrupps sind jetzt beweglich)
       ruhezeit: 0, // Ruhezeit in Stunden (Techniktrupps haben keine klassische Ruhezeit)
       ausruestung: 'Batterie', // Spezielle Ausrüstung (z.B. 'Batterie' für Techniktrupps)
       einsatzzeitMax: 8, // Maximale Einsatzzeit pro Batterieladung in Stunden

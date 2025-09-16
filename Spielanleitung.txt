@@ -1,0 +1,56 @@
+**Spielanleitung für PRIM-Funkloch**
+
+**1. Spielziel**
+Das Hauptziel des Spiels ist die Errichtung und Aufrechterhaltung einer Kommunikationsbrücke zwischen zwei vorgegebenen Punkten auf der Karte (z.B. von Mahlwinkel nach Berlin-Alexanderplatz). Dies wird durch den strategischen Einsatz von spezialisierten Trupps erreicht, die als Relaisstationen fungieren.
+
+**2. Die Karte**
+Die Spielwelt wird als ein Netzwerk von Orten (Knoten) und Wegen (Kanten) dargestellt.
+*   **Orte**: Dies sind benannte Standorte auf der Karte.
+*   **Wege**: Jeder Weg verbindet zwei Orte und hat zwei wichtige Eigenschaften:
+    *   **Distanz**: Die Länge des Weges in Kilometern.
+    *   **Risiko**: Ein Wert, der die Gefährlichkeit des Weges angibt. Ein höheres Risiko erfordert stärkere Trupps für eine sichere Passage oder einen sicheren Einsatz.
+
+**3. Trupps**
+Trupps sind die Einheiten, die der Spieler kontrolliert. Es gibt zwei Haupttypen von Trupps:
+
+*   **Techniktrupps (BeROp-Trupps)**
+    *   **Spezialisierung**: Diese Trupps sind mit Batterien ausgestattet und essenziell für die Errichtung von Relaisstationen über weite Strecken (bis zu 50 km).
+    *   **Eigenschaften**:
+        *   **Name**: Beginnt mit `BeROp-`.
+        *   **Stärke**: Festgelegt auf 3.
+        *   **Geschwindigkeit**: 10 km/h.
+        *   **Batterielaufzeit**: Haben eine maximale Einsatzzeit von 8 Stunden pro Batterieladung. Danach müssen sie versorgt oder aufgeladen werden.
+        *   **Keine Ruhezeit**: Benötigen nach einem Einsatz keine klassische Ruhezeit.
+
+*   **Reguläre Trupps (WD-, BER-, BAST-Trupps)**
+    *   **Spezialisierung**: Diese Trupps sind vielseitig einsetzbar und dienen zur Unterstützung, Begleitung und für Relais-Einsätze über kürzere Distanzen (bis zu 25 km).
+    *   **Eigenschaften**:
+        *   **Name**: Beginnt mit `WD-`, `BER-` oder `BAST-`.
+        *   **Stärke**: Variiert zwischen 4 und 10.
+        *   **Geschwindigkeit**: Variiert zwischen 4 und 15 km/h.
+        *   **Einsatzdauer & Ruhezeit**: Haben eine definierte Einsatzdauer (1-5 Stunden), nach der eine entsprechende Ruhezeit erforderlich ist.
+        *   **Ausrüstung**: Können zufällige Ausrüstung haben, die ihre Fähigkeiten beeinflusst:
+            *   `CombatMedic`: Wichtig für Einsätze mit hohem Risiko.
+            *   `Überwachung`: Nützlich in gefährlichen Gebieten.
+            *   `Veteran`: Besonders starke und widerstandsfähige Einheiten.
+            *   `None`: Standardtrupp ohne Spezialausrüstung.
+
+**4. Missionen**
+Die Aktionen der Trupps werden durch Missionen definiert:
+*   **Bewegung**: Ein Trupp bewegt sich von einem Ort zum anderen. Die Dauer hängt von der Distanz und der Geschwindigkeit des Trupps ab.
+*   **Relay**: Ein oder mehrere Trupps positionieren sich auf einem Weg, um eine Funkverbindung herzustellen. Die Dauer hängt von der Einsatzdauer des Trupps ab.
+*   **Batterie aufladen**: Ein Techniktrupp, dessen Batterie leer ist, kann an einer Ladestation (z.B. in Wannsee oder Bahnitz) aufgeladen werden.
+*   **Batterie liefern**: Ein Versorgungstrupp kann einem Techniktrupp eine neue Batterie bringen.
+
+**5. Spielablauf**
+Das Spiel simuliert den Ablauf der Zeit. Der Missionsplaner versucht automatisch, die Kommunikationsbrücke aufzubauen und zu erhalten.
+*   **Pfadfindung**: Zuerst wird der kürzeste und sicherste Weg zwischen Start- und Endpunkt der Brücke berechnet.
+*   **Trupp-Zuweisung**: Der Planer wählt geeignete Trupps für die einzelnen Wegsegmente aus. Die Auswahl hängt von der Distanz, dem Risiko und der Verfügbarkeit der Trupps ab.
+*   **Risikomanagement**: Für Wege mit hohem Risiko werden Trupps mit höherer Stärke oder spezieller Ausrüstung benötigt. Die Regel lautet: `Mindeststärke = Risiko * 2`.
+*   **Batteriemanagement**: Der Planer berücksichtigt die Batterielaufzeit der Techniktrupps und plant Versorgungs- oder Auflademissionen, wenn eine Batterie zur Neige geht.
+*   **Dynamische Anpassung**: Das Spiel reagiert dynamisch auf die Verfügbarkeit von Trupps und versucht, Lücken in der Kommunikationsbrücke dürfen nicht passieren.
+
+**6. Benutzeroberfläche**
+*   **Karte**: Visualisiert das Netzwerk, die Trupps und die aktive Kommunikationsbrücke.
+*   **Trupp-Tabelle**: Zeigt eine Liste aller verfügbaren Trupps und ihre Eigenschaften an. Die Werte können hier direkt bearbeitet werden.
+*   **Einsatz-Tabelle**: Listet alle geplanten Missionen chronologisch auf.

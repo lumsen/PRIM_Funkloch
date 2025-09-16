@@ -64,4 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
   console.log('Data before renderEinsaetzeTable:', getEinsaetzeData());
   renderEinsaetzeTable();
   initializeEventListeners(); // Call event listeners after initial rendering
+
+  console.log("--- Mission Plan Solution ---");
+  console.table(getEinsaetzeData());
 });

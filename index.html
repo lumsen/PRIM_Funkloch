@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Funknetzwerk-Visualisierung</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
-    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./src/css/style.css">
     <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 <body>
@@ -31,8 +31,8 @@
             <ul>
                 <li><b>Trupps:</b> Es gibt zwei Haupttypen von Trupps:
                     <ul>
-                        <li><b>Techniktrupps (BeROp-[XX]):</b> Diese sind statisch (Bewegungsgeschwindigkeit 0 km/h) und dienen als Relaispunkte. Sie benötigen Batterien, die von regulären Trupps geliefert werden müssen. Ihre Reichweite von 50 km bezieht sich auf die Abdeckung als Relais.</li>
-                        <li><b>Reguläre Trupps (WD-[XX], BER-[XX], BAST-[XX]):</b> Diese Trupps sind mobil und können Batterien transportieren. Sie haben unterschiedliche Stärken, Reichweiten, Geschwindigkeiten und Ruhezeiten. Ihre Ausrüstung ist entscheidend für die Bewältigung von Risiken.</li>
+                        <li><b>Techniktrupps (BeROp-[XX]):</b> Diese sind mobil (10 km/h) und dienen als Relaispunkte. Sie benötigen Batterien, die von regulären Trupps geliefert werden müssen. Ihre Reichweite von 50 km bezieht sich auf die Abdeckung als Relais.</li>
+                        <li><b>Reguläre Trupps (WD-[XX], BER-[XX], BAST-[XX]):</b> Diese Trupps sind mobil und können Batterien transportieren. Ihre Stärke variiert von 4-10, Geschwindigkeit von 4-8 km/h und Reichweite beträgt 25 km. Ihre Ausrüstung ist entscheidend für die Bewältigung von Risiken.</li>
                     </ul>
                 </li>
                 <li><b>Risikostufen:</b> Jede Verbindung zwischen Orten hat eine Risikostufe (R0-R5), die die Anforderungen an die Truppstärke und Ausrüstung beeinflusst.
@@ -114,13 +114,13 @@
                         <th>Reichweite (km)
                             <span class="tooltip-container">
                                 <span class="info-icon">?</span>
-                                <span class="tooltip">Maximale Distanz, die der Trupp in einem Einsatz abdecken kann. Für Techniktrupps ist dies die Relais-Reichweite.</span>
+                                <span class="tooltip">Maximale Distanz, die der Trupp in einem Einsatz abdecken kann. Techniktrupps haben eine Relais-Reichweite von 50 km, reguläre Trupps 25 km.</span>
                             </span>
                         </th>
                         <th>Bewegungsgeschwindigkeit (km/h)
                             <span class="tooltip-container">
                                 <span class="info-icon">?</span>
-                                <span class="tooltip">Geschwindigkeit, mit der sich der Trupp zwischen Einsatzpunkten bewegt. Techniktrupps sind statisch (0 km/h).</span>
+                                <span class="tooltip">Geschwindigkeit, mit der sich der Trupp zwischen Einsatzpunkten bewegt. Techniktrupps haben eine Geschwindigkeit von 10 km/h.</span>
                             </span>
                         </th>
                         <th>Ruhezeit (h)
@@ -134,7 +134,7 @@
                                 <span class="info-icon">?</span>
                                 <span class="tooltip">
                                     <b>CombatMedic:</b> Wird benötigt ab Risiko 4.<br>
-                                    <b>Überwachung:</b> Einmaliger Ersatz für CombatMedic bei Risiko 4 (wird zerstört).<br>
+                                    <b>Überwachung:</b> Alternative zu CombatMedic bei Risiko 4.<br>
                                     <b>Veteran:</b> Überlebensnotwendig bei Risiko 5.<br>
                                     <b>Batterie:</b> Spezielle Ausrüstung für Techniktrupps zur Energieversorgung.
                                 </span>
@@ -200,6 +200,6 @@
         </div>
     </main>
 
-    <script type="module" src="./js/script.js"></script>
+    <script type="module" src="./src/js/script.js"></script>
 </body>
 </html>

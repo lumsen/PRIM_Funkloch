@@ -66,7 +66,13 @@ export function loadData() {
   const savedEinsaetze = localStorage.getItem(LOCAL_STORAGE_KEY_EINSAETZE);
   if (savedEinsaetze) {
     try {
-      setEinsaetzeData(JSON.parse(savedEinsaetze));
+      const parsedEinsaetze = JSON.parse(savedEinsaetze);
+      if (Array.isArray(parsedEinsaetze)) {
+        setEinsaetzeData(parsedEinsaetze);
+      } else {
+        console.warn('Saved einsaetze data is not an array, resetting.');
+        setEinsaetzeData([]);
+      }
       console.log('Einsaetze data loaded successfully.', getEinsaetzeData());
     }
     catch (e) {
