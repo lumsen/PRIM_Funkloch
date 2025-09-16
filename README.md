@@ -4,8 +4,6 @@ Ein strategisches Planungstool zur Verwaltung von Trupps und Einsätzen in einem
 
 ## 🌐 Live Demo
 
-[![richtext](https://github.com/lumsen/PRIM_Funkloch/raw/main/resources/demo-link.png)](https://lumsen.github.io/PRIM_Funkloch/)
-
 **Direktlink:** [Prim Funkloch spielen](https://lumsen.github.io/PRIM_Funkloch/)
 
 Die Anwendung läuft vollständig im Browser und erfordert keine Installation.
